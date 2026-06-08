@@ -142,6 +142,8 @@ class CreateQuoteViewModel : ViewModel() {
         _s.value = _s.value.copy(editIdx = idx, editQty = it.qty.toString(), editPrice = if (it.unitPrice > 0) it.unitPrice.toString() else "")
     }
     fun cancelEdit() { _s.value = _s.value.copy(editIdx = -1) }
+    fun updateEditQty(v: String) { _s.value = _s.value.copy(editQty = v) }
+    fun updateEditPrice(v: String) { _s.value = _s.value.copy(editPrice = v) }
     fun saveEdit() {
         val st = _s.value; val idx = st.editIdx; if (idx < 0) return
         val it = st.items[idx]
@@ -416,11 +418,11 @@ private fun ItemRow(idx: Int, s: QuoteState, vm: CreateQuoteViewModel) {
         // ── Edit mode ──
         if (editing) {
             Row(Modifier.padding(bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                OutlinedTextField(value = s.editQty, onValueChange = vm::updateEditQty, label = { Text("數量") },
-                    singleLine = true, modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp))
+                OutlinedTextField(value = s.editQty, onValueChange = { vm.updateEditQty(it) }, label = { Text("數量") },
+                    singleLine = true, modifier = Modifier.weight(1f))
                 Spacer(Modifier.width(8.dp))
-                OutlinedTextField(value = s.editPrice, onValueChange = vm::updateEditPrice, label = { Text("單價") },
-                    singleLine = true, modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp))
+                OutlinedTextField(value = s.editPrice, onValueChange = { vm.updateEditPrice(it) }, label = { Text("單價") },
+                    singleLine = true, modifier = Modifier.weight(1f))
             }
             Row(Modifier.fillMaxWidth().padding(bottom = 6.dp), horizontalArrangement = Arrangement.End) {
                 TextButton(onClick = vm::cancelEdit) { Text("取消") }
