@@ -12,16 +12,48 @@ import kotlinx.coroutines.launch
 
 data class CustomerUiState(
     val searchQuery: String = "",
+    val allCustomers: List<CustomerSummary> = emptyList(),
     val searchResults: List<CustomerSummary> = emptyList(),
     val selectedCustomer: CustomerDetail? = null,
     val isLoading: Boolean = false,
     val error: String? = null,
     val isViewingDetail: Boolean = false
-)
+) {
+    /** 當前顯示的列表（搜尋中顯示結果，否則顯示全部） */
+    val displayedCustomers: List<CustomerSummary>
+        get() = if (searchQuery.isBlank()) allCustomers else searchResults
+}
 
 class CustomerViewModel : ViewModel() {
     private val _state = MutableStateFlow(CustomerUiState())
     val state: StateFlow<CustomerUiState> = _state.asStateFlow()
+
+    init {
+        loadAllCustomers()
+    }
+
+    /** 載入全部客戶 */
+    fun loadAllCustomers() {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, error = null)
+            try {
+                // 嘗試 GET /customers，失敗則用 search?q= 空字串 fallback
+                var resp = ApiClient.service.getAllCustomers()
+                if (!resp.isSuccessful) {
+                    resp = ApiClient.service.searchCustomers("")
+                }
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    allCustomers = resp.body()?.data ?: emptyList()
+                )
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    error = "載入失敗: ${e.localizedMessage}"
+                )
+            }
+        }
+    }
 
     fun onSearchQueryChange(query: String) {
         _state.value = _state.value.copy(searchQuery = query, error = null)
@@ -34,29 +66,19 @@ class CustomerViewModel : ViewModel() {
 
     fun search() {
         val query = _state.value.searchQuery.trim()
-        if (query.isBlank()) {
-            _state.value = _state.value.copy(error = "請輸入客戶名稱")
-            return
-        }
+        if (query.isBlank()) return
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
             try {
                 val resp = ApiClient.service.searchCustomers(query)
-                if (resp.isSuccessful && resp.body()?.ok == true) {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        searchResults = resp.body()?.data ?: emptyList()
-                    )
-                } else {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        error = resp.body()?.error?.message ?: "查無客戶"
-                    )
-                }
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    searchResults = resp.body()?.data ?: emptyList()
+                )
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
                     isLoading = false,
-                    error = "網絡錯誤: ${e.localizedMessage}"
+                    error = "搜尋失敗: ${e.localizedMessage}"
                 )
             }
         }
@@ -73,27 +95,18 @@ class CustomerViewModel : ViewModel() {
                         selectedCustomer = resp.body()?.data,
                         isViewingDetail = true
                     )
-                } else {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        error = resp.body()?.error?.message ?: "無法載入客戶資料"
-                    )
                 }
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
                     isLoading = false,
-                    error = "網絡錯誤: ${e.localizedMessage}"
+                    error = "載入失敗: ${e.localizedMessage}"
                 )
             }
         }
     }
 
     fun backToList() {
-        _state.value = _state.value.copy(
-            isViewingDetail = false,
-            selectedCustomer = null,
-            error = null
-        )
+        _state.value = _state.value.copy(isViewingDetail = false, selectedCustomer = null, error = null)
     }
 
     fun setSearchAndSearch(query: String) {

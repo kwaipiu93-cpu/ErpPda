@@ -109,9 +109,9 @@ private fun CustomerListStep(state: CustomerUiState, viewModel: CustomerViewMode
                 color = MaterialTheme.colorScheme.onErrorContainer
             )
         }
-    } else if (state.searchResults.isNotEmpty()) {
+    } else if (state.displayedCustomers.isNotEmpty()) {
         Text(
-            "搜尋結果 (${state.searchResults.size})",
+            if (state.searchQuery.isNotBlank()) "搜尋結果 (${state.displayedCustomers.size})" else "全部客戶 (${state.displayedCustomers.size})",
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold,
             color = TileTeal
@@ -121,29 +121,20 @@ private fun CustomerListStep(state: CustomerUiState, viewModel: CustomerViewMode
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            items(state.searchResults, key = { it.id }) { customer ->
+            items(state.displayedCustomers, key = { it.id }) { customer ->
                 CustomerCard(customer = customer, onClick = { viewModel.viewDetail(customer.id) })
             }
         }
-    } else if (state.searchQuery.isNotBlank()) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("無匹配結果", color = Color.Gray, style = MaterialTheme.typography.bodyLarge)
-        }
-    } else {
+    } else if (!state.isLoading) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    Icons.Filled.Search,
-                    contentDescription = null,
-                    modifier = Modifier.size(64.dp),
-                    tint = Color.LightGray
-                )
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    "輸入客戶名稱或掃描條碼查詢",
-                    color = Color.Gray,
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                if (state.searchQuery.isNotBlank()) {
+                    Text("無匹配結果", color = Color.Gray, style = MaterialTheme.typography.bodyLarge)
+                } else {
+                    Text("暫無客戶資料", color = Color.Gray, style = MaterialTheme.typography.bodyLarge)
+                    Spacer(Modifier.height(8.dp))
+                    Text("請在 Web ERP 後台新增客戶", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
+                }
             }
         }
     }

@@ -125,6 +125,9 @@ interface ErpApiService {
     @GET("customers/search")
     suspend fun searchCustomers(@Query("q") query: String): Response<ApiResponse<List<CustomerSummary>>>
 
+    @GET("customers")
+    suspend fun getAllCustomers(): Response<ApiResponse<List<CustomerSummary>>>
+
     @GET("customers/{id}")
     suspend fun getCustomerDetail(@Path("id") id: Int): Response<ApiResponse<CustomerDetail>>
 
