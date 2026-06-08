@@ -142,7 +142,7 @@ private fun CustomerListStep(state: CustomerUiState, viewModel: CustomerViewMode
 
 @Composable
 private fun CustomerCard(customer: CustomerSummary, onClick: () -> Unit) {
-    val hasOutstanding = customer.outstandingHkd > 0.0
+    val hasOutstanding = ((customer.outstandingHkd?.toDoubleOrNull() ?: 0.0) > 0.0)
 
     Card(
         modifier = Modifier
@@ -171,7 +171,7 @@ private fun CustomerCard(customer: CustomerSummary, onClick: () -> Unit) {
                     Icon(Icons.Filled.Person, null, Modifier.size(14.dp), tint = Color.Gray)
                     Spacer(Modifier.width(4.dp))
                     Text(
-                        text = customer.contactPerson.ifBlank { "--" },
+                        text = customer.contactPerson?.ifBlank { "--" } ?: "--",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )
@@ -179,7 +179,7 @@ private fun CustomerCard(customer: CustomerSummary, onClick: () -> Unit) {
                     Icon(Icons.Filled.Phone, null, Modifier.size(14.dp), tint = Color.Gray)
                     Spacer(Modifier.width(4.dp))
                     Text(
-                        text = customer.contactPhone.ifBlank { "--" },
+                        text = customer.contactPhone?.ifBlank { "--" } ?: "--",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )
@@ -193,7 +193,7 @@ private fun CustomerCard(customer: CustomerSummary, onClick: () -> Unit) {
                             color = Color.Gray
                         )
                         Text(
-                            text = "HKD ${"%,.2f".format(customer.outstandingHkd)}",
+                            text = "HKD ${customer.outstandingHkd}",
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.bodyMedium,
                             color = if (hasOutstanding) Error else Success
@@ -206,7 +206,7 @@ private fun CustomerCard(customer: CustomerSummary, onClick: () -> Unit) {
                             color = Color.Gray
                         )
                         Text(
-                            text = "HKD ${"%,.2f".format(customer.creditLimitHkd)}",
+                            text = "HKD ${customer.creditLimitHkd}",
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.bodyMedium,
                             color = TileTeal
@@ -241,13 +241,13 @@ private fun CustomerDetailStep(state: CustomerUiState, viewModel: CustomerViewMo
         // ── Company Info ──
         item {
             SectionCard(title = "公司資訊", accentColor = TileTeal) {
-                DetailRow("公司名稱 (中)", customer.companyNameZh.ifBlank { "--" })
-                DetailRow("公司名稱 (英)", customer.companyNameEn.ifBlank { "--" })
-                DetailRow("客戶類型", customer.customerType.ifBlank { "--" })
+                DetailRow("公司名稱 (中)", customer.companyNameZh.ifBlank { "--" } ?: "--")
+                DetailRow("公司名稱 (英)", customer.companyNameEn.ifBlank { "--" } ?: "--")
+                DetailRow("客戶類型", customer.customerType.ifBlank { "--" } ?: "--")
                 DetailRow(
                     "商業登記號碼 (BR)",
-                    customer.brNumber.ifBlank { "--" },
-                    valueColor = if (customer.brNumber.isNotBlank()) Color.Unspecified else Color.Gray
+                    customer.brNumber ?: "--",
+                    valueColor = if (customer.brNumber != null) Color.Unspecified else Color.Gray
                 )
                 DetailRow(
                     "狀態",
@@ -260,17 +260,17 @@ private fun CustomerDetailStep(state: CustomerUiState, viewModel: CustomerViewMo
         // ── Contact Info ──
         item {
             SectionCard(title = "聯絡資訊", accentColor = TileBlue) {
-                DetailRow("聯絡人", customer.contactPerson.ifBlank { "--" })
-                DetailRow("電話", customer.contactPhone.ifBlank { "--" })
-                DetailRow("電郵", customer.contactEmail.ifBlank { "--" })
+                DetailRow("聯絡人", customer.contactPerson?.ifBlank { "--" } ?: "--")
+                DetailRow("電話", customer.contactPhone?.ifBlank { "--" } ?: "--")
+                DetailRow("電郵", customer.contactEmail?.ifBlank { "--" } ?: "--")
             }
         }
 
         // ── Addresses ──
         item {
             SectionCard(title = "地址", accentColor = TileGreen) {
-                DetailRow("帳單地址", customer.billingAddress.ifBlank { "--" })
-                DetailRow("送貨地址", customer.shippingAddress.ifBlank { "--" })
+                DetailRow("帳單地址", customer.billingAddress?.ifBlank { "--" } ?: "--")
+                DetailRow("送貨地址", customer.shippingAddress?.ifBlank { "--" } ?: "--")
             }
         }
 
@@ -280,14 +280,14 @@ private fun CustomerDetailStep(state: CustomerUiState, viewModel: CustomerViewMo
                 DetailRow("信用期", "${customer.creditTermDays} 天")
                 DetailRow(
                     "信用額度",
-                    "HKD ${"%,.2f".format(customer.creditLimitHkd)}",
+                    "HKD ${customer.creditLimitHkd}",
                     valueColor = TileTeal
                 )
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                val hasOutstanding = customer.outstandingHkd > 0.0
+                val hasOutstanding = ((customer.outstandingHkd?.toDoubleOrNull() ?: 0.0) > 0.0)
                 DetailRow(
                     "未結餘額",
-                    "HKD ${"%,.2f".format(customer.outstandingHkd)}",
+                    "HKD ${customer.outstandingHkd}",
                     valueColor = if (hasOutstanding) Error else Success,
                     valueWeight = FontWeight.Bold
                 )

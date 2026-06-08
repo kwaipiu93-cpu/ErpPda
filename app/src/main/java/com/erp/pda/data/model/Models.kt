@@ -242,26 +242,30 @@ data class CustomerSummary(
     @SerializedName("company_name_zh") val companyNameZh: String = "",
     @SerializedName("company_name_en") val companyNameEn: String = "",
     @SerializedName("customer_type") val customerType: String = "",
-    @SerializedName("contact_phone") val contactPhone: String = "",
-    @SerializedName("contact_person") val contactPerson: String = "",
-    @SerializedName("outstanding_hkd") val outstandingHkd: Double = 0.0,
-    @SerializedName("credit_limit_hkd") val creditLimitHkd: Double = 0.0
-)
+    @SerializedName("contact_phone") val contactPhone: String? = null,
+    @SerializedName("contact_person") val contactPerson: String? = null,
+    @SerializedName("credit_limit_hkd") val creditLimitHkd: String = "0",
+    @SerializedName("outstanding_hkd") val outstandingHkd: String? = null
+) {
+    val creditLimitDisplay: String get() = creditLimitHkd
+    val outstandingDisplay: String get() = outstandingHkd ?: "0"
+    val hasOutstanding: Boolean get() = (outstandingHkd?.toDoubleOrNull() ?: 0.0) > 0.0
+}
 
 data class CustomerDetail(
     val id: Int = 0,
     @SerializedName("company_name_zh") val companyNameZh: String = "",
     @SerializedName("company_name_en") val companyNameEn: String = "",
     @SerializedName("customer_type") val customerType: String = "",
-    @SerializedName("br_number") val brNumber: String = "",
-    @SerializedName("contact_person") val contactPerson: String = "",
-    @SerializedName("contact_phone") val contactPhone: String = "",
-    @SerializedName("contact_email") val contactEmail: String = "",
-    @SerializedName("billing_address") val billingAddress: String = "",
-    @SerializedName("shipping_address") val shippingAddress: String = "",
+    @SerializedName("br_number") val brNumber: String? = null,
+    @SerializedName("contact_person") val contactPerson: String? = null,
+    @SerializedName("contact_phone") val contactPhone: String? = null,
+    @SerializedName("contact_email") val contactEmail: String? = null,
+    @SerializedName("billing_address") val billingAddress: String? = null,
+    @SerializedName("shipping_address") val shippingAddress: String? = null,
     @SerializedName("credit_term_days") val creditTermDays: Int = 0,
-    @SerializedName("credit_limit_hkd") val creditLimitHkd: Double = 0.0,
-    @SerializedName("outstanding_hkd") val outstandingHkd: Double = 0.0,
+    @SerializedName("credit_limit_hkd") val creditLimitHkd: String = "0",
+    @SerializedName("outstanding_balance") val outstandingHkd: String = "0",
     @SerializedName("is_active") val isActive: Boolean = true
 )
 

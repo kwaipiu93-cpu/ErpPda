@@ -182,11 +182,9 @@ fun CustomerStep(state: CreateQuoteUiState, vm: CreateQuoteViewModel) {
                                 "${c.customerType} | ${c.contactPhone}",
                                 style = MaterialTheme.typography.bodySmall
                             )
-                            if (c.outstandingHkd > 0) {
+                            if (c.hasOutstanding) {
                                 Text(
-                                    "未付: HKD ${
-                                        "%.2f".format(c.outstandingHkd)
-                                    }",
+                                    "未付: HKD ${c.outstandingDisplay}",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = Error
                                 )
