@@ -113,6 +113,7 @@ interface ErpApiService {
     @GET("invoices")
     suspend fun getInvoices(
         @Query("invoice_number") invoiceNumber: String? = null,
+        @Query("status") status: String? = null,
         @Query("document_type") docType: String? = null
     ): Response<ApiResponse<List<InvoiceSummary>>>
 
@@ -135,8 +136,30 @@ interface ErpApiService {
     suspend fun createCustomer(@Body request: CreateCustomerRequest): Response<ApiResponse<CustomerSummary>>
 
     // ─── Quotations ───
+    @GET("quotations")
+    suspend fun getQuotations(
+        @Query("status") status: String? = null
+    ): Response<ApiResponse<List<InvoiceSummary>>>
+
+    @GET("quotations/{id}")
+    suspend fun getQuotationDetail(@Path("id") id: Int): Response<ApiResponse<InvoiceDetail>>
+
     @POST("quotations")
     suspend fun createQuotation(@Body request: CreateQuotationRequest): Response<ApiResponse<QuotationResponse>>
+
+    @PUT("quotations/{id}")
+    suspend fun updateQuotation(
+        @Path("id") id: Int,
+        @Body request: UpdateQuotationRequest
+    ): Response<ApiResponse<Any>>
+
+    // ─── Invoices (update) ───
+
+    @PUT("invoices/{id}")
+    suspend fun updateInvoice(
+        @Path("id") id: Int,
+        @Body request: UpdateInvoiceRequest
+    ): Response<ApiResponse<Any>>
 
     // ─── Payments ───
     @POST("payments")

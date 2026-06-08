@@ -412,3 +412,18 @@ data class CreateCustomerRequest(
     @SerializedName("contact_person") val contactPerson: String? = null,
     @SerializedName("company_name_en") val companyNameEn: String? = null
 )
+
+// ─── Update Requests ───
+
+data class UpdateQuotationRequest(
+    @SerializedName("customer_id") val customerId: Int? = null,
+    @SerializedName("warehouse_id") val warehouseId: Int? = null,
+    val items: List<QuoteItemRequest>? = null,
+    val notes: String? = null
+)
+
+data class UpdateInvoiceRequest(
+    val notes: String? = null,
+    @SerializedName("discount_amount") val discountAmount: Double? = null,
+    @SerializedName("delivery_charge") val deliveryCharge: Double? = null
+)

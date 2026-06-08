@@ -10,10 +10,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.erp.pda.scanner.ScannerManager
 import com.erp.pda.ui.checkout.CheckoutScreen
 import com.erp.pda.ui.createpo.CreatePoScreen
@@ -21,9 +23,13 @@ import com.erp.pda.ui.createquote.CreateQuoteScreen
 import com.erp.pda.ui.customers.CustomerScreen
 import com.erp.pda.ui.dispatch.DispatchScreen
 import com.erp.pda.ui.home.HomeScreen
+import com.erp.pda.ui.invoicelist.InvoiceListScreen
 import com.erp.pda.ui.invoicelookup.InvoiceLookupScreen
 import com.erp.pda.ui.login.LoginScreen
 import com.erp.pda.ui.lookup.LookupScreen
+import com.erp.pda.ui.polist.PoListScreen
+import com.erp.pda.ui.quotedetail.QuoteDetailScreen
+import com.erp.pda.ui.quotelist.QuoteListScreen
 import com.erp.pda.ui.receiving.ReceivingScreen
 import com.erp.pda.ui.recordpayment.RecordPaymentScreen
 import com.erp.pda.ui.returns.ReturnScreen
@@ -49,6 +55,8 @@ object Routes {
     const val INVOICE_LOOKUP = "invoice_lookup"
     const val CUSTOMERS = "customers"
     const val CREATE_QUOTE = "create_quote"
+    const val QUOTE_LIST = "quote_list"
+    const val QUOTE_DETAIL = "quote_detail/{id}"
     const val RECORD_PAYMENT = "record_payment"
     const val CREATE_PO = "create_po"
     const val LOOKUP = "lookup"
@@ -56,6 +64,8 @@ object Routes {
     const val STOCK_CHECK = "stock_check"
     const val RETURN = "return"
     const val TRANSFER = "transfer"
+    const val INVOICE_LIST = "invoice_list"
+    const val PO_LIST = "po_list"
 }
 
 data class BottomTab(
@@ -113,6 +123,29 @@ fun NavGraph(
         composable(Routes.STOCK_CHECK) { StockCheckScreen(scannerManager = scannerManager) }
         composable(Routes.RETURN) { ReturnScreen(scannerManager = scannerManager) }
         composable(Routes.TRANSFER) { TransferScreen(scannerManager = scannerManager) }
+        composable(Routes.INVOICE_LIST) {
+            InvoiceListScreen(onNavigate = { navController.navigate(it) })
+        }
+        composable(Routes.PO_LIST) {
+            PoListScreen(onNavigate = { navController.navigate(it) })
+        }
+        composable(Routes.QUOTE_LIST) {
+            QuoteListScreen(
+                scannerManager = scannerManager,
+                onNavigateToDetail = { id -> navController.navigate("quote_detail/$id") }
+            )
+        }
+        composable(
+            Routes.QUOTE_DETAIL,
+            arguments = listOf(navArgument("id") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val quoteId = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: return@composable
+            QuoteDetailScreen(
+                quoteId = quoteId,
+                scannerManager = scannerManager,
+                onBack = { navController.popBackStack() }
+            )
+        }
     }
 }
 
