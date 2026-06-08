@@ -161,7 +161,8 @@ data class Product(
     @SerializedName("sku_code") val skuCode: String = "",
     @SerializedName("name_zh") val nameZh: String = "",
     @SerializedName("name_en") val nameEn: String = "",
-    @SerializedName("is_serial_tracked") val isSerialTracked: Boolean = false
+    @SerializedName("is_serial_tracked") val isSerialTracked: Boolean = false,
+    @SerializedName("retail_price_hkd") val retailPriceHkd: Double = 0.0
 )
 
 data class StockInfo(
