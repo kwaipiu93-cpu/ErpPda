@@ -7,12 +7,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.erp.pda.scanner.ScannerManager
 import com.erp.pda.ui.checkout.CheckoutScreen
+import com.erp.pda.ui.createpo.CreatePoScreen
+import com.erp.pda.ui.createquote.CreateQuoteScreen
+import com.erp.pda.ui.customers.CustomerScreen
 import com.erp.pda.ui.dispatch.DispatchScreen
 import com.erp.pda.ui.home.HomeScreen
 import com.erp.pda.ui.invoicelookup.InvoiceLookupScreen
 import com.erp.pda.ui.login.LoginScreen
 import com.erp.pda.ui.lookup.LookupScreen
 import com.erp.pda.ui.receiving.ReceivingScreen
+import com.erp.pda.ui.recordpayment.RecordPaymentScreen
 import com.erp.pda.ui.returns.ReturnScreen
 import com.erp.pda.ui.stockcheck.StockCheckScreen
 import com.erp.pda.ui.stocktake.StocktakeScreen
@@ -25,6 +29,10 @@ object Routes {
     const val DISPATCH = "dispatch"
     const val CHECKOUT = "checkout"
     const val INVOICE_LOOKUP = "invoice_lookup"
+    const val CUSTOMERS = "customers"
+    const val CREATE_QUOTE = "create_quote"
+    const val RECORD_PAYMENT = "record_payment"
+    const val CREATE_PO = "create_po"
     const val LOOKUP = "lookup"
     const val STOCKTAKE = "stocktake"
     const val STOCK_CHECK = "stock_check"
@@ -73,6 +81,22 @@ fun NavGraph(
 
         composable(Routes.INVOICE_LOOKUP) {
             InvoiceLookupScreen(scannerManager = scannerManager)
+        }
+
+        composable(Routes.CUSTOMERS) {
+            CustomerScreen(scannerManager = scannerManager)
+        }
+
+        composable(Routes.CREATE_QUOTE) {
+            CreateQuoteScreen(scannerManager = scannerManager)
+        }
+
+        composable(Routes.RECORD_PAYMENT) {
+            RecordPaymentScreen(scannerManager = scannerManager)
+        }
+
+        composable(Routes.CREATE_PO) {
+            CreatePoScreen(scannerManager = scannerManager)
         }
 
         composable(Routes.DISPATCH) {

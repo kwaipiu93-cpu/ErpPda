@@ -31,10 +31,14 @@ data class DashboardTile(
 )
 
 val dashboardTiles = listOf(
+    DashboardTile("客戶管理", Icons.Filled.People, TileTeal, Routes.CUSTOMERS),
+    DashboardTile("建立報價", Icons.Filled.Description, TileOrange, Routes.CREATE_QUOTE),
     DashboardTile("快速結帳", Icons.Filled.PointOfSale, TileCyan, Routes.CHECKOUT),
+    DashboardTile("收款記錄", Icons.Filled.Payments, Success, Routes.RECORD_PAYMENT),
+    DashboardTile("發票查詢", Icons.Filled.Receipt, TileAmber, Routes.INVOICE_LOOKUP),
+    DashboardTile("建立採購單", Icons.Filled.AddShoppingCart, TileBlue, Routes.CREATE_PO),
     DashboardTile("採購收貨", Icons.Filled.Inventory, TileBlue, Routes.RECEIVING),
     DashboardTile("出貨確認", Icons.Filled.LocalShipping, TileGreen, Routes.DISPATCH),
-    DashboardTile("發票查詢", Icons.Filled.Receipt, TileAmber, Routes.INVOICE_LOOKUP),
     DashboardTile("S/N 查詢", Icons.Filled.Search, TileOrange, Routes.LOOKUP),
     DashboardTile("庫存盤點", Icons.Filled.Assessment, TilePurple, Routes.STOCKTAKE),
     DashboardTile("快速查庫存", Icons.Filled.Visibility, TileTeal, Routes.STOCK_CHECK),
@@ -82,7 +86,7 @@ fun HomeScreen(
         }
     ) { padding ->
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+            columns = GridCells.Fixed(3),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)

@@ -124,4 +124,23 @@ interface ErpApiService {
 
     @GET("customers/search")
     suspend fun searchCustomers(@Query("q") query: String): Response<ApiResponse<List<CustomerSummary>>>
+
+    @GET("customers/{id}")
+    suspend fun getCustomerDetail(@Path("id") id: Int): Response<ApiResponse<CustomerDetail>>
+
+    // ─── Quotations ───
+    @POST("quotations")
+    suspend fun createQuotation(@Body request: CreateQuotationRequest): Response<ApiResponse<QuotationResponse>>
+
+    // ─── Payments ───
+    @POST("payments")
+    suspend fun recordPayment(@Body request: RecordPaymentRequest): Response<ApiResponse<Any>>
+
+    // ─── Suppliers ───
+    @GET("suppliers")
+    suspend fun getSuppliers(): Response<ApiResponse<List<SupplierSummary>>>
+
+    // ─── Purchase Orders ───
+    @POST("purchase-orders")
+    suspend fun createPurchaseOrder(@Body request: CreatePoRequest): Response<ApiResponse<Any>>
 }
