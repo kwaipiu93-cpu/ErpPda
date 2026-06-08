@@ -234,3 +234,77 @@ data class StockTransferItem(
     @SerializedName("qty_received") val qtyReceived: Int = 0,
     @SerializedName("is_serial_tracked") val isSerialTracked: Boolean = false
 )
+
+// ─── Sales / Checkout ───
+
+data class CustomerSummary(
+    val id: Int = 0,
+    @SerializedName("company_name_zh") val companyNameZh: String = "",
+    @SerializedName("company_name_en") val companyNameEn: String = "",
+    @SerializedName("customer_type") val customerType: String = "",
+    @SerializedName("contact_phone") val contactPhone: String = ""
+)
+
+data class B2cCheckoutRequest(
+    @SerializedName("customer_id") val customerId: Int,
+    @SerializedName("warehouse_id") val warehouseId: Int,
+    @SerializedName("payment_method") val paymentMethod: String = "FPS",
+    @SerializedName("reference_number") val referenceNumber: String = "",
+    val items: List<B2cCheckoutItem>
+)
+
+data class B2cCheckoutItem(
+    @SerializedName("product_id") val productId: Int,
+    val qty: Int = 1,
+    @SerializedName("unit_price") val unitPrice: Double = 0.0,
+    @SerializedName("serial_numbers") val serialNumbers: List<String> = emptyList()
+)
+
+data class B2cCheckoutResponse(
+    @SerializedName("invoice_id") val invoiceId: Int = 0,
+    @SerializedName("invoice_number") val invoiceNumber: String = "",
+    @SerializedName("total_hkd") val totalHkd: Double = 0.0
+)
+
+// ─── Invoice Lookup ───
+
+data class InvoiceSummary(
+    val id: Int = 0,
+    @SerializedName("invoice_number") val invoiceNumber: String = "",
+    @SerializedName("document_type") val documentType: String = "",
+    @SerializedName("customer_name") val customerName: String = "",
+    @SerializedName("grand_total_hkd") val grandTotalHkd: Double = 0.0,
+    @SerializedName("payment_status") val paymentStatus: String = "",
+    @SerializedName("lifecycle_status") val lifecycleStatus: String = "",
+    @SerializedName("shipping_status") val shippingStatus: String = "",
+    @SerializedName("issue_date") val issueDate: String = ""
+)
+
+data class InvoiceDetail(
+    val id: Int = 0,
+    @SerializedName("invoice_number") val invoiceNumber: String = "",
+    @SerializedName("document_type") val documentType: String = "",
+    @SerializedName("customer_name") val customerName: String = "",
+    @SerializedName("grand_total_hkd") val grandTotalHkd: Double = 0.0,
+    @SerializedName("paid_amount_hkd") val paidAmountHkd: Double = 0.0,
+    @SerializedName("discount_amount") val discountAmount: Double = 0.0,
+    @SerializedName("delivery_charge") val deliveryCharge: Double = 0.0,
+    @SerializedName("payment_status") val paymentStatus: String = "",
+    @SerializedName("lifecycle_status") val lifecycleStatus: String = "",
+    @SerializedName("shipping_status") val shippingStatus: String = "",
+    @SerializedName("issue_date") val issueDate: String = "",
+    @SerializedName("due_date") val dueDate: String = "",
+    @SerializedName("notes") val notes: String? = null,
+    @SerializedName("items") val items: List<InvoiceDetailItem> = emptyList()
+)
+
+data class InvoiceDetailItem(
+    val id: Int = 0,
+    @SerializedName("product_id") val productId: Int = 0,
+    @SerializedName("sku_code") val skuCode: String = "",
+    @SerializedName("product_name") val productName: String = "",
+    val qty: Int = 0,
+    @SerializedName("qty_shipped") val qtyShipped: Int = 0,
+    @SerializedName("unit_price") val unitPrice: Double = 0.0,
+    @SerializedName("line_total_hkd") val lineTotalHkd: Double = 0.0
+)

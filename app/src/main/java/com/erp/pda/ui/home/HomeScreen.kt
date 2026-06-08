@@ -31,8 +31,10 @@ data class DashboardTile(
 )
 
 val dashboardTiles = listOf(
+    DashboardTile("快速結帳", Icons.Filled.PointOfSale, TileCyan, Routes.CHECKOUT),
     DashboardTile("採購收貨", Icons.Filled.Inventory, TileBlue, Routes.RECEIVING),
     DashboardTile("出貨確認", Icons.Filled.LocalShipping, TileGreen, Routes.DISPATCH),
+    DashboardTile("發票查詢", Icons.Filled.Receipt, TileAmber, Routes.INVOICE_LOOKUP),
     DashboardTile("S/N 查詢", Icons.Filled.Search, TileOrange, Routes.LOOKUP),
     DashboardTile("庫存盤點", Icons.Filled.Assessment, TilePurple, Routes.STOCKTAKE),
     DashboardTile("快速查庫存", Icons.Filled.Visibility, TileTeal, Routes.STOCK_CHECK),

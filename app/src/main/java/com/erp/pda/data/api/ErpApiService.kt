@@ -108,4 +108,20 @@ interface ErpApiService {
         @Path("id") id: Int,
         @Body request: Map<String, @JvmSuppressWildcards Any>
     ): Response<ApiResponse<Any>>
+
+    // ─── Sales ───
+    @GET("invoices")
+    suspend fun getInvoices(
+        @Query("invoice_number") invoiceNumber: String? = null,
+        @Query("document_type") docType: String? = null
+    ): Response<ApiResponse<List<InvoiceSummary>>>
+
+    @GET("invoices/{id}")
+    suspend fun getInvoiceDetail(@Path("id") id: Int): Response<ApiResponse<InvoiceDetail>>
+
+    @POST("checkout/b2c-fast")
+    suspend fun b2cFastCheckout(@Body request: B2cCheckoutRequest): Response<ApiResponse<B2cCheckoutResponse>>
+
+    @GET("customers/search")
+    suspend fun searchCustomers(@Query("q") query: String): Response<ApiResponse<List<CustomerSummary>>>
 }

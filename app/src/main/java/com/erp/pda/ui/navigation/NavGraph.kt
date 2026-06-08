@@ -6,8 +6,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.erp.pda.scanner.ScannerManager
+import com.erp.pda.ui.checkout.CheckoutScreen
 import com.erp.pda.ui.dispatch.DispatchScreen
 import com.erp.pda.ui.home.HomeScreen
+import com.erp.pda.ui.invoicelookup.InvoiceLookupScreen
 import com.erp.pda.ui.login.LoginScreen
 import com.erp.pda.ui.lookup.LookupScreen
 import com.erp.pda.ui.receiving.ReceivingScreen
@@ -21,6 +23,8 @@ object Routes {
     const val HOME = "home"
     const val RECEIVING = "receiving"
     const val DISPATCH = "dispatch"
+    const val CHECKOUT = "checkout"
+    const val INVOICE_LOOKUP = "invoice_lookup"
     const val LOOKUP = "lookup"
     const val STOCKTAKE = "stocktake"
     const val STOCK_CHECK = "stock_check"
@@ -61,6 +65,14 @@ fun NavGraph(
 
         composable(Routes.RECEIVING) {
             ReceivingScreen(scannerManager = scannerManager)
+        }
+
+        composable(Routes.CHECKOUT) {
+            CheckoutScreen(scannerManager = scannerManager)
+        }
+
+        composable(Routes.INVOICE_LOOKUP) {
+            InvoiceLookupScreen(scannerManager = scannerManager)
         }
 
         composable(Routes.DISPATCH) {
