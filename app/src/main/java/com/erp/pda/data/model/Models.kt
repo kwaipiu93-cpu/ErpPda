@@ -23,9 +23,15 @@ data class LoginRequest(
 )
 
 data class LoginResponse(
+    @SerializedName("tokens") val tokens: TokenPair? = null,
+    @SerializedName("user") val user: UserInfo? = null
+)
+
+data class TokenPair(
     @SerializedName("access_token") val accessToken: String = "",
     @SerializedName("refresh_token") val refreshToken: String = "",
-    @SerializedName("user") val user: UserInfo? = null
+    @SerializedName("token_type") val tokenType: String = "Bearer",
+    @SerializedName("expires_in") val expiresIn: Int = 7200
 )
 
 data class UserInfo(
@@ -40,8 +46,7 @@ data class TokenRefreshRequest(
 )
 
 data class TokenRefreshResponse(
-    @SerializedName("access_token") val accessToken: String = "",
-    @SerializedName("refresh_token") val refreshToken: String = ""
+    @SerializedName("tokens") val tokens: TokenPair? = null
 )
 
 // ─── Warehouse ───

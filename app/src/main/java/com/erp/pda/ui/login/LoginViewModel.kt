@@ -59,7 +59,7 @@ class LoginViewModel : ViewModel() {
                         com.erp.pda.data.model.TokenRefreshRequest(refreshToken)
                     )
                     if (resp.isSuccessful && resp.body()?.ok == true) {
-                        resp.body()?.data?.let {
+                        resp.body()?.data?.tokens?.let {
                             SessionManager.updateTokens(it.accessToken, it.refreshToken)
                         }
                     }

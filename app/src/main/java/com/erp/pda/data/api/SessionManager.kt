@@ -25,8 +25,10 @@ object SessionManager {
 
     fun saveLogin(response: LoginResponse) {
         prefs.edit().apply {
-            putString(KEY_ACCESS_TOKEN, response.accessToken)
-            putString(KEY_REFRESH_TOKEN, response.refreshToken)
+            response.tokens?.let {
+                putString(KEY_ACCESS_TOKEN, it.accessToken)
+                putString(KEY_REFRESH_TOKEN, it.refreshToken)
+            }
             response.user?.let {
                 putInt(KEY_USER_ID, it.id)
                 putString(KEY_USER_NAME, it.displayName)
