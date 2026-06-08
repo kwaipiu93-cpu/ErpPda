@@ -42,9 +42,11 @@ import kotlinx.coroutines.launch
    6. 每個動作有 feedback（聲 + toast）
 */
 
-data class QuoteItem(var product: Product, var qty: Int = 1, var unitPrice: Double = 0.0) {
+data class QuoteItem(var product: Product, var qty: Int = 1, var unitPrice: Double = 0.0, var customName: String? = null) {
     val lineTotal get() = qty * unitPrice
     val displayPrice get() = if (unitPrice > 0) unitPrice else product.retailPriceHkd
+    val displayName get() = customName ?: product.nameZh.ifBlank { product.skuCode }
+    val isCustom get() = customName != null
 }
 
 data class QuoteState(
@@ -63,10 +65,18 @@ data class QuoteState(
     val pickingCustomer: Boolean = false,
     val customerSearch: String = "",
     val customerResults: List<CustomerSummary> = emptyList(),
+    // Create customer inline
+    val creatingCustomer: Boolean = false,
+    val newCustName: String = "",
+    val newCustPhone: String = "",
     // Add item
     val pickingProduct: Boolean = false,
     val productSearch: String = "",
     val productResults: List<Product> = emptyList(),
+    // Create custom item (no product match)
+    val creatingCustomItem: Boolean = false,
+    val customItemName: String = "",
+    val customItemPrice: String = "",
     // Edit item (inline)
     val editIdx: Int = -1,
     val editQty: String = "",
@@ -113,6 +123,25 @@ class CreateQuoteViewModel : ViewModel() {
     }
     fun selectCustomer(c: CustomerSummary) { _s.value = _s.value.copy(customer = c, pickingCustomer = false) }
 
+    // ── Create new customer inline ──
+    fun startCreateCustomer() { _s.value = _s.value.copy(creatingCustomer = true, newCustName = "", newCustPhone = "") }
+    fun cancelCreateCustomer() { _s.value = _s.value.copy(creatingCustomer = false) }
+    fun setNewCustName(v: String) { _s.value = _s.value.copy(newCustName = v) }
+    fun setNewCustPhone(v: String) { _s.value = _s.value.copy(newCustPhone = v) }
+    fun submitNewCustomer() {
+        val name = _s.value.newCustName.trim()
+        if (name.isBlank()) { _s.value = _s.value.copy(feedback = "請輸入客戶名稱", feedbackError = true); return }
+        viewModelScope.launch {
+            try {
+                val req = CreateCustomerRequest(companyNameZh = name, contactPhone = _s.value.newCustPhone.ifBlank { null })
+                val resp = ApiClient.service.createCustomer(req)
+                if (resp.isSuccessful && resp.body()?.ok == true) {
+                    resp.body()?.data?.let { _s.value = _s.value.copy(customer = it, pickingCustomer = false, creatingCustomer = false) }
+                } else _s.value = _s.value.copy(feedback = resp.body()?.error?.message ?: "建立失敗", feedbackError = true)
+            } catch (e: Exception) { _s.value = _s.value.copy(feedback = "錯誤: ${e.localizedMessage}", feedbackError = true) }
+        }
+    }
+
     // ── Products ──
     fun openPickProduct() {
         _s.value = _s.value.copy(pickingProduct = true, productSearch = "", productResults = emptyList())
@@ -138,6 +167,26 @@ class CreateQuoteViewModel : ViewModel() {
         val ex = st.items.find { it.product.id == p.id }
         if (ex != null) { ex.qty++; _s.value = st.copy(items = st.items.toList(), feedback = "${p.skuCode} ×${ex.qty}") }
         else _s.value = st.copy(items = st.items + QuoteItem(p), pickingProduct = false, feedback = "已加入 ${p.skuCode}")
+    }
+
+    // ── Custom item (no product match) ──
+    fun startCustomItem() {
+        _s.value = _s.value.copy(creatingCustomItem = true, customItemName = _s.value.productSearch, customItemPrice = "")
+    }
+    fun cancelCustomItem() { _s.value = _s.value.copy(creatingCustomItem = false) }
+    fun setCustomName(v: String) { _s.value = _s.value.copy(customItemName = v) }
+    fun setCustomPrice(v: String) { _s.value = _s.value.copy(customItemPrice = v) }
+    fun submitCustomItem() {
+        val name = _s.value.customItemName.trim()
+        if (name.isBlank()) { _s.value = _s.value.copy(feedback = "請輸入名稱", feedbackError = true); return }
+        val price = _s.value.customItemPrice.toDoubleOrNull() ?: 0.0
+        val dummyProduct = Product(id = 0, skuCode = "CUSTOM", nameZh = name)
+        val item = QuoteItem(product = dummyProduct, unitPrice = price, customName = name)
+        _s.value = _s.value.copy(
+            items = _s.value.items + item,
+            pickingProduct = false, creatingCustomItem = false,
+            feedback = "已加入: $name"
+        )
     }
 
     // ── Barcode scan ──
@@ -186,7 +235,7 @@ class CreateQuoteViewModel : ViewModel() {
             _s.value = st.copy(submitting = true)
             try {
                 val req = CreateQuotationRequest(customerId = cust.id, warehouseId = st.warehouseId,
-                    items = st.items.map { QuoteItemRequest(productId = it.product.id, qty = it.qty, unitPrice = it.unitPrice) })
+                    items = st.items.map { QuoteItemRequest(productId = if (it.isCustom) 0 else it.product.id, productName = it.customName, qty = it.qty, unitPrice = it.unitPrice) })
                 val resp = ApiClient.service.createQuotation(req)
                 if (resp.isSuccessful && resp.body()?.ok == true) {
                     val d = resp.body()?.data
@@ -345,7 +394,7 @@ fun CreateQuoteScreen(scannerManager: ScannerManager, viewModel: CreateQuoteView
     }
 
     // ── Customer Picker Dialog ──
-    if (s.pickingCustomer) {
+    if (s.pickingCustomer && !s.creatingCustomer) {
         AlertDialog(onDismissRequest = viewModel::closePickCustomer,
             title = { Text("選擇客戶", fontWeight = FontWeight.Bold) },
             text = {
@@ -358,7 +407,7 @@ fun CreateQuoteScreen(scannerManager: ScannerManager, viewModel: CreateQuoteView
                     if (s.customerResults.isEmpty() && s.customerSearch.length >= 2) {
                         Text("無匹配結果", color = Color.Gray, modifier = Modifier.padding(8.dp))
                     }
-                    LazyColumn(Modifier.heightIn(max = 320.dp)) {
+                    LazyColumn(Modifier.heightIn(max = 280.dp)) {
                         items(s.customerResults) { c ->
                             Row(Modifier.fillMaxWidth().clickable { viewModel.selectCustomer(c) }.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Box(Modifier.size(34.dp).clip(CircleShape).background(TileOrange.copy(alpha = 0.1f)), contentAlignment = Alignment.Center) {
@@ -372,14 +421,44 @@ fun CreateQuoteScreen(scannerManager: ScannerManager, viewModel: CreateQuoteView
                             }
                         }
                     }
+                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
+                    TextButton(onClick = viewModel::startCreateCustomer, modifier = Modifier.fillMaxWidth()) {
+                        Icon(Icons.Filled.PersonAdd, null, tint = TileOrange, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("新增客戶", color = TileOrange, fontWeight = FontWeight.Bold)
+                    }
                 }
             },
             confirmButton = { TextButton(onClick = viewModel::closePickCustomer) { Text("取消", color = Color.Gray) } },
             containerColor = Color.White, shape = RoundedCornerShape(16.dp))
     }
 
+    // ── Create Customer Dialog ──
+    if (s.creatingCustomer) {
+        AlertDialog(onDismissRequest = viewModel::cancelCreateCustomer,
+            title = { Text("新增客戶", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(value = s.newCustName, onValueChange = viewModel::setNewCustName,
+                        label = { Text("客戶名稱 *") }, singleLine = true,
+                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp))
+                    OutlinedTextField(value = s.newCustPhone, onValueChange = viewModel::setNewCustPhone,
+                        label = { Text("電話 (可選)") }, singleLine = true,
+                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp))
+                }
+            },
+            confirmButton = {
+                Button(onClick = viewModel::submitNewCustomer,
+                    colors = ButtonDefaults.buttonColors(containerColor = TileOrange), shape = RoundedCornerShape(10.dp)) {
+                    Text("建立")
+                }
+            },
+            dismissButton = { TextButton(onClick = viewModel::cancelCreateCustomer) { Text("返回") } },
+            containerColor = Color.White, shape = RoundedCornerShape(16.dp))
+    }
+
     // ── Product Picker Dialog ──
-    if (s.pickingProduct) {
+    if (s.pickingProduct && !s.creatingCustomItem) {
         AlertDialog(onDismissRequest = viewModel::closePickProduct,
             title = { Text("加入商品", fontWeight = FontWeight.Bold) },
             text = {
@@ -389,22 +468,56 @@ fun CreateQuoteScreen(scannerManager: ScannerManager, viewModel: CreateQuoteView
                         leadingIcon = { Icon(Icons.Filled.Search, null, tint = Color.Gray) },
                         modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp))
                     Spacer(Modifier.height(8.dp))
-                    LazyColumn(Modifier.heightIn(max = 320.dp)) {
-                        items(s.productResults) { p ->
-                            Row(Modifier.fillMaxWidth().clickable { viewModel.addProduct(p) }.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Filled.Inventory2, null, tint = TileOrange, modifier = Modifier.size(20.dp))
-                                Spacer(Modifier.width(10.dp))
-                                Column(Modifier.weight(1f)) {
-                                    Text(p.skuCode, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                    Text(p.nameZh, fontSize = 12.sp, color = Color.Gray)
+                    if (s.productResults.isNotEmpty()) {
+                        LazyColumn(Modifier.heightIn(max = 260.dp)) {
+                            items(s.productResults) { p ->
+                                Row(Modifier.fillMaxWidth().clickable { viewModel.addProduct(p) }.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Filled.Inventory2, null, tint = TileOrange, modifier = Modifier.size(20.dp))
+                                    Spacer(Modifier.width(10.dp))
+                                    Column(Modifier.weight(1f)) {
+                                        Text(p.skuCode, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                        Text(p.nameZh, fontSize = 12.sp, color = Color.Gray)
+                                    }
+                                    Icon(Icons.Filled.AddCircle, null, tint = Success, modifier = Modifier.size(24.dp))
                                 }
-                                Icon(Icons.Filled.AddCircle, null, tint = Success, modifier = Modifier.size(24.dp))
                             }
                         }
+                    } else if (s.productSearch.isNotBlank()) {
+                        Text("無匹配商品", color = Color.Gray, modifier = Modifier.padding(8.dp))
+                    }
+                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
+                    TextButton(onClick = viewModel::startCustomItem, modifier = Modifier.fillMaxWidth()) {
+                        Icon(Icons.Filled.NoteAdd, null, tint = TileOrange, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("手動新增項目", color = TileOrange, fontWeight = FontWeight.Bold)
                     }
                 }
             },
             confirmButton = { TextButton(onClick = viewModel::closePickProduct) { Text("取消", color = Color.Gray) } },
+            containerColor = Color.White, shape = RoundedCornerShape(16.dp))
+    }
+
+    // ── Custom Item Dialog ──
+    if (s.creatingCustomItem) {
+        AlertDialog(onDismissRequest = viewModel::cancelCustomItem,
+            title = { Text("手動新增項目", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(value = s.customItemName, onValueChange = viewModel::setCustomName,
+                        label = { Text("名稱 *") }, singleLine = true,
+                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp))
+                    OutlinedTextField(value = s.customItemPrice, onValueChange = viewModel::setCustomPrice,
+                        label = { Text("單價 HKD (可選)") }, singleLine = true,
+                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp))
+                }
+            },
+            confirmButton = {
+                Button(onClick = viewModel::submitCustomItem,
+                    colors = ButtonDefaults.buttonColors(containerColor = TileOrange), shape = RoundedCornerShape(10.dp)) {
+                    Text("加入")
+                }
+            },
+            dismissButton = { TextButton(onClick = viewModel::cancelCustomItem) { Text("返回") } },
             containerColor = Color.White, shape = RoundedCornerShape(16.dp))
     }
 }

@@ -351,7 +351,8 @@ data class CreateQuotationRequest(
 )
 
 data class QuoteItemRequest(
-    @SerializedName("product_id") val productId: Int,
+    @SerializedName("product_id") val productId: Int = 0,
+    @SerializedName("product_name") val productName: String? = null,
     val qty: Int = 1,
     @SerializedName("unit_price") val unitPrice: Double = 0.0
 )
@@ -400,4 +401,14 @@ data class PoItemRequest(
     @SerializedName("product_id") val productId: Int,
     @SerializedName("qty_ordered") val qtyOrdered: Int = 1,
     @SerializedName("unit_price_foreign") val unitPriceForeign: Double = 0.0
+)
+
+// ─── Customer Creation ───
+
+data class CreateCustomerRequest(
+    @SerializedName("company_name_zh") val companyNameZh: String,
+    @SerializedName("customer_type") val customerType: String = "B2B",
+    @SerializedName("contact_phone") val contactPhone: String? = null,
+    @SerializedName("contact_person") val contactPerson: String? = null,
+    @SerializedName("company_name_en") val companyNameEn: String? = null
 )

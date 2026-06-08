@@ -131,6 +131,9 @@ interface ErpApiService {
     @GET("customers/{id}")
     suspend fun getCustomerDetail(@Path("id") id: Int): Response<ApiResponse<CustomerDetail>>
 
+    @POST("customers")
+    suspend fun createCustomer(@Body request: CreateCustomerRequest): Response<ApiResponse<CustomerSummary>>
+
     // ─── Quotations ───
     @POST("quotations")
     suspend fun createQuotation(@Body request: CreateQuotationRequest): Response<ApiResponse<QuotationResponse>>
