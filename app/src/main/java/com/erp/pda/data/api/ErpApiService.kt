@@ -85,8 +85,14 @@ interface ErpApiService {
         @Query("status") status: String = "Draft"
     ): Response<ApiResponse<List<CreditNote>>>
 
+    @GET("credit-notes/{id}")
+    suspend fun getCreditNoteDetail(@Path("id") id: Int): Response<ApiResponse<CreditNote>>
+
     @POST("credit-notes/{id}/confirm")
-    suspend fun confirmCreditNote(@Path("id") id: Int): Response<ApiResponse<Any>>
+    suspend fun confirmCreditNote(
+        @Path("id") id: Int,
+        @Body request: Map<String, @JvmSuppressWildcards Any>
+    ): Response<ApiResponse<Any>>
 
     // ─── Stock Transfers ───
     @GET("stock-transfers")
@@ -94,6 +100,12 @@ interface ErpApiService {
         @Query("status") status: String = "Transiting"
     ): Response<ApiResponse<List<StockTransfer>>>
 
+    @GET("stock-transfers/{id}")
+    suspend fun getStockTransferDetail(@Path("id") id: Int): Response<ApiResponse<StockTransfer>>
+
     @POST("stock-transfers/{id}/receive")
-    suspend fun receiveStockTransfer(@Path("id") id: Int): Response<ApiResponse<Any>>
+    suspend fun receiveStockTransfer(
+        @Path("id") id: Int,
+        @Body request: Map<String, @JvmSuppressWildcards Any>
+    ): Response<ApiResponse<Any>>
 }

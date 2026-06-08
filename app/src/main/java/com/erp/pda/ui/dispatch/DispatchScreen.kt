@@ -19,8 +19,7 @@ import com.erp.pda.ErpApplication
 import com.erp.pda.data.model.DeliveryNote
 import com.erp.pda.feedback.ScanFeedback
 import com.erp.pda.scanner.ScannerManager
-import com.erp.pda.ui.theme.Primary
-import com.erp.pda.ui.theme.Success
+import com.erp.pda.ui.theme.*
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,10 +84,14 @@ fun DispatchScreen(
                 else {
                     val dn = state.selectedDN!!
                     Column(Modifier.fillMaxSize()) {
-                        Card(Modifier.fillMaxWidth().padding(8.dp), colors = CardDefaults.cardColors(containerColor = Primary.copy(alpha = 0.1f))) {
+                        Card(Modifier.fillMaxWidth().padding(8.dp), colors = CardDefaults.cardColors(containerColor = TileGreen.copy(alpha = 0.1f))) {
                             Column(Modifier.padding(12.dp)) {
-                                Text("${dn.dnNumber} | ${dn.customerName}", fontWeight = FontWeight.Bold)
-                                Text("狀態: ${dn.fsmStatus}", style = MaterialTheme.typography.bodySmall)
+                                Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text(dn.dnNumber, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                                    AssistChip(onClick = {}, label = { Text(dn.fsmStatus) })
+                                }
+                                Text("客戶: ${dn.customerName}", style = MaterialTheme.typography.bodyMedium)
+                                Text("${state.items.size} 項商品待出貨", style = MaterialTheme.typography.bodySmall)
                             }
                         }
 

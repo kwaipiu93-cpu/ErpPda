@@ -77,9 +77,26 @@ fun StockCheckScreen(
             } else {
                 // Stock detail
                 val prod = state.selectedProduct!!
-                Text(prod.skuCode, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                Text(prod.nameZh, style = MaterialTheme.typography.bodyMedium)
-                Spacer(Modifier.height(16.dp))
+                Card(
+                    Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = TileTeal.copy(alpha = 0.1f))
+                ) {
+                    Column(Modifier.padding(16.dp)) {
+                        Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(prod.skuCode, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                            if (prod.isSerialTracked) {
+                                AssistChip(onClick = {}, label = { Text("S/N") },
+                                    colors = AssistChipDefaults.assistChipColors(containerColor = Primary.copy(alpha = 0.15f)))
+                            }
+                        }
+                        Text(prod.nameZh, style = MaterialTheme.typography.bodyMedium)
+                        if (prod.nameEn.isNotBlank() && prod.nameEn != prod.nameZh) {
+                            Text(prod.nameEn, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(12.dp))
 
                 state.stocks.forEach { stock ->
                     Card(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {

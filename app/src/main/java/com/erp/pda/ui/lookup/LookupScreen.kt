@@ -12,7 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.erp.pda.feedback.ScanFeedback
 import com.erp.pda.scanner.ScannerManager
-import com.erp.pda.ui.theme.Primary
+import com.erp.pda.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,34 +70,53 @@ fun LookupScreen(
                 val r = state.result!!
                 Card(Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(16.dp)) {
-                        Text("商品資訊", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium, color = Primary)
+                        // Product section
+                        Text("📦 商品資訊", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium, color = TileOrange)
                         Spacer(Modifier.height(8.dp))
                         InfoRow("S/N", r.serialNumber)
                         InfoRow("SKU", r.skuCode)
                         InfoRow("商品名稱", r.productName)
                         InfoRow("品牌", r.brand)
-                        InfoRow("狀態", r.status)
 
+                        // Status badge
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("狀態:", modifier = Modifier.width(120.dp), style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                            val statusColor = when (r.status) {
+                                "Sold" -> Success
+                                "In_Stock" -> Primary
+                                "Allocated" -> Warning
+                                "Returned" -> Color.Gray
+                                "Defective" -> Error
+                                else -> Color.Gray
+                            }
+                            Surface(color = statusColor.copy(alpha = 0.15f), shape = MaterialTheme.shapes.small) {
+                                Text(r.status, Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                    color = statusColor, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium)
+                            }
+                        }
+
+                        // Warranty section with expiry warning
                         HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                        Text("雙軌保固", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium, color = Primary)
+                        Text("🛡️ 雙軌保固", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium, color = TileOrange)
                         Spacer(Modifier.height(4.dp))
-                        InfoRow("供應商保固到期", r.supplierWarrantyExpiry ?: "--")
-                        InfoRow("客戶保固到期", r.customerWarrantyExpiry ?: "--")
+
+                        WarrantyRow("供應商保固到期", r.supplierWarrantyExpiry)
+                        WarrantyRow("客戶保固到期", r.customerWarrantyExpiry)
 
                         if (r.customerName != null) {
                             HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                            Text("銷售資訊", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium, color = Primary)
+                            Text("🏢 銷售資訊", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium, color = TileGreen)
                             Spacer(Modifier.height(4.dp))
-                            InfoRow("客戶", r.customerName)
+                            InfoRow("客戶", r.customerName!!)
                             InfoRow("發票", r.invoiceNumber ?: "--")
                             InfoRow("銷售日期", r.saleDate ?: "--")
                         }
 
                         if (r.supplierName != null) {
                             HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                            Text("採購資訊", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium, color = Primary)
+                            Text("🏭 採購資訊", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium, color = TileBlue)
                             Spacer(Modifier.height(4.dp))
-                            InfoRow("供應商", r.supplierName)
+                            InfoRow("供應商", r.supplierName!!)
                             InfoRow("PO", r.poNumber ?: "--")
                             InfoRow("PO 日期", r.poDate ?: "--")
                         }
@@ -113,5 +132,31 @@ fun InfoRow(label: String, value: String) {
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp)) {
         Text("$label:", modifier = Modifier.width(120.dp), style = MaterialTheme.typography.bodySmall, color = Color.Gray)
         Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+    }
+}
+
+@Composable
+fun WarrantyRow(label: String, date: String?) {
+    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text("$label:", modifier = Modifier.width(120.dp), style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+        if (date != null) {
+            // Check if expiring within 30 days
+            val isExpiringSoon = try {
+                val fmt = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                val expiryDate = fmt.parse(date)
+                val thirtyDaysFromNow = System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000
+                expiryDate != null && expiryDate.time < thirtyDaysFromNow
+            } catch (_: Exception) { false }
+
+            Column {
+                Text(date, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium,
+                    color = if (isExpiringSoon) Error else Color.Unspecified)
+                if (isExpiringSoon) {
+                    Text("⚠ 即將到期", style = MaterialTheme.typography.labelSmall, color = Error)
+                }
+            }
+        } else {
+            Text("--", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+        }
     }
 }

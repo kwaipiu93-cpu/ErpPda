@@ -195,7 +195,21 @@ data class CreditNote(
     @SerializedName("cn_number") val cnNumber: String = "",
     @SerializedName("customer_name") val customerName: String = "",
     @SerializedName("fsm_status") val fsmStatus: String = "",
-    @SerializedName("credit_type") val creditType: String = ""
+    @SerializedName("credit_type") val creditType: String = "",
+    @SerializedName("total_amount_hkd") val totalAmountHkd: Double = 0.0,
+    @SerializedName("has_goods_return") val hasGoodsReturn: Boolean = false,
+    @SerializedName("items") val items: List<CreditNoteItem> = emptyList()
+)
+
+data class CreditNoteItem(
+    val id: Int = 0,
+    @SerializedName("product_id") val productId: Int = 0,
+    @SerializedName("sku_code") val skuCode: String = "",
+    @SerializedName("product_name") val productName: String = "",
+    val qty: Int = 0,
+    @SerializedName("unit_price") val unitPrice: Double = 0.0,
+    @SerializedName("is_serial_tracked") val isSerialTracked: Boolean = false,
+    @SerializedName("is_defective") val isDefective: Boolean = false
 )
 
 // ─── Stock Transfer ───
@@ -203,7 +217,20 @@ data class CreditNote(
 data class StockTransfer(
     val id: Int = 0,
     @SerializedName("st_number") val stNumber: String = "",
+    @SerializedName("from_warehouse_id") val fromWarehouseId: Int = 0,
     @SerializedName("from_warehouse_name") val fromWarehouseName: String = "",
+    @SerializedName("to_warehouse_id") val toWarehouseId: Int = 0,
     @SerializedName("to_warehouse_name") val toWarehouseName: String = "",
-    @SerializedName("fsm_status") val fsmStatus: String = ""
+    @SerializedName("fsm_status") val fsmStatus: String = "",
+    @SerializedName("items") val items: List<StockTransferItem> = emptyList()
+)
+
+data class StockTransferItem(
+    val id: Int = 0,
+    @SerializedName("product_id") val productId: Int = 0,
+    @SerializedName("sku_code") val skuCode: String = "",
+    @SerializedName("product_name") val productName: String = "",
+    val qty: Int = 0,
+    @SerializedName("qty_received") val qtyReceived: Int = 0,
+    @SerializedName("is_serial_tracked") val isSerialTracked: Boolean = false
 )

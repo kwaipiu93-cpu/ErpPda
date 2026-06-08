@@ -2,6 +2,8 @@ package com.erp.pda.ui.stocktake
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,8 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.erp.pda.ErpApplication
 import com.erp.pda.feedback.ScanFeedback
 import com.erp.pda.scanner.ScannerManager
-import com.erp.pda.ui.theme.Primary
-import com.erp.pda.ui.theme.Success
+import com.erp.pda.ui.theme.*
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,30 +79,61 @@ fun StocktakeScreen(
             } else {
                 // Active task — scanning mode
                 val task = state.activeTask!!
-                Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Primary.copy(alpha = 0.1f))) {
+                Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = TilePurple.copy(alpha = 0.1f))) {
                     Column(Modifier.padding(16.dp)) {
-                        Text(task.stkNumber, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
-                        Text("狀態: ${task.fsmStatus}")
-                        Text("已掃描: ${state.scannedCount} 件", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.headlineMedium, color = Primary)
+                        Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                            Column {
+                                Text(task.stkNumber, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                                Text("狀態: ${task.fsmStatus}")
+                            }
+                            // Progress indicator
+                            Surface(
+                                shape = MaterialTheme.shapes.small,
+                                color = TilePurple.copy(alpha = 0.15f)
+                            ) {
+                                Text(
+                                    "${state.scannedCount} 件",
+                                    Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                    fontWeight = FontWeight.Bold,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = TilePurple
+                                )
+                            }
+                        }
                     }
                 }
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(12.dp))
 
-                state.lastScanned?.let {
-                    Card(Modifier.fillMaxWidth()) {
-                        Text("最近掃描: $it", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.bodyLarge)
+                state.lastScanned?.let { sn ->
+                    Card(Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
+                        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Filled.CheckCircle, null, tint = Success, modifier = Modifier.size(20.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("最近掃描: $sn", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+                        }
                     }
+                }
+
+                // 掃描提示
+                Spacer(Modifier.height(8.dp))
+                Card(Modifier.fillMaxWidth().padding(horizontal = 8.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF8E1))) {
+                    Text(
+                        "📱 按 PDA 觸發鍵掃描條碼，自動記錄",
+                        modifier = Modifier.padding(12.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
                 }
 
                 Spacer(Modifier.weight(1f))
 
                 Button(
                     onClick = viewModel::completeTask,
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Success)
+                    modifier = Modifier.fillMaxWidth().padding(16.dp).height(52.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = TilePurple)
                 ) {
-                    Text("完成盤點")
+                    Text("完成盤點 (${state.scannedCount} 件)", style = MaterialTheme.typography.labelLarge)
                 }
             }
         }

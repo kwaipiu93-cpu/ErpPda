@@ -19,8 +19,7 @@ import com.erp.pda.data.model.PurchaseOrder
 import com.erp.pda.ErpApplication
 import com.erp.pda.feedback.ScanFeedback
 import com.erp.pda.scanner.ScannerManager
-import com.erp.pda.ui.theme.Primary
-import com.erp.pda.ui.theme.Success
+import com.erp.pda.ui.theme.*
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -108,21 +107,25 @@ fun ReceivingScreen(
                 } else {
                     val po = state.selectedPO!!
                     Column(modifier = Modifier.fillMaxSize()) {
-                        // PO Info header
+                        // PO Info header — enhanced
                         Card(
                             modifier = Modifier.fillMaxWidth().padding(8.dp),
                             colors = CardDefaults.cardColors(containerColor = Primary.copy(alpha = 0.1f))
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
-                                Text(
-                                    text = "${po.poNumber} | ${po.supplierName}",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "狀態: ${po.fsmStatus}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
+                                Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text(
+                                        text = po.poNumber,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    AssistChip(onClick = {}, label = { Text(po.fsmStatus) })
+                                }
+                                Text("供應商: ${po.supplierName}", style = MaterialTheme.typography.bodyMedium)
+                                Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text("狀態: ${po.fsmStatus}", style = MaterialTheme.typography.bodySmall)
+                                    Text("${state.items.size} 項商品", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                                }
                             }
                         }
 
@@ -144,6 +147,13 @@ fun ReceivingScreen(
                                         text = item.poItem.productName,
                                         style = MaterialTheme.typography.bodyMedium
                                     )
+                                    if (item.poItem.isSerialTracked) {
+                                        Text(
+                                            text = "保固: ${item.poItem.warrantyMonths}個月",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = Primary
+                                        )
+                                    }
                                     Text(
                                         text = "已掃: ${item.scannedSerials.size} / ${item.remaining}",
                                         style = MaterialTheme.typography.bodyLarge,
@@ -222,6 +232,12 @@ fun ReceivingScreen(
 
 @Composable
 fun PoListItem(po: PurchaseOrder, onClick: () -> Unit) {
+    val statusColor = when (po.fsmStatus) {
+        "Ordered" -> Primary
+        "Partially_Received" -> Warning
+        "Received" -> Success
+        else -> Color.Gray
+    }
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp).clickable(onClick = onClick)
     ) {
@@ -229,9 +245,22 @@ fun PoListItem(po: PurchaseOrder, onClick: () -> Unit) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(po.poNumber, fontWeight = FontWeight.Bold)
                 Text(po.supplierName, style = MaterialTheme.typography.bodySmall)
-                Text("${po.currencyCode} ${po.totalAmountHkd}", style = MaterialTheme.typography.bodySmall)
+                Row {
+                    Text("${po.currencyCode} ", style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        "%.2f".format(po.totalAmountHkd),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
-            AssistChip(onClick = {}, label = { Text(po.fsmStatus) })
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Surface(color = statusColor.copy(alpha = 0.15f), shape = MaterialTheme.shapes.small) {
+                    Text(po.fsmStatus, Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                        color = statusColor, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                }
+                Text("點擊收貨 >", style = MaterialTheme.typography.labelSmall, color = Primary)
+            }
         }
     }
 }
