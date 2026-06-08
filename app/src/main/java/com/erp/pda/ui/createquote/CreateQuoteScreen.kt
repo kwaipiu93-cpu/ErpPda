@@ -92,7 +92,16 @@ class CreateQuoteViewModel : ViewModel() {
     }
 
     // ── Customer ──
-    fun openPickCustomer() { _s.value = _s.value.copy(pickingCustomer = true, customerSearch = "", customerResults = emptyList()) }
+    fun openPickCustomer() {
+        _s.value = _s.value.copy(pickingCustomer = true, customerSearch = "", customerResults = emptyList())
+        // 開咗即刻 load 全部客戶
+        viewModelScope.launch {
+            try {
+                val resp = ApiClient.service.getAllCustomers()
+                _s.value = _s.value.copy(customerResults = resp.body()?.data ?: emptyList())
+            } catch (_: Exception) {}
+        }
+    }
     fun closePickCustomer() { _s.value = _s.value.copy(pickingCustomer = false) }
     fun searchCustomer(q: String) {
         _s.value = _s.value.copy(customerSearch = q)
@@ -105,7 +114,16 @@ class CreateQuoteViewModel : ViewModel() {
     fun selectCustomer(c: CustomerSummary) { _s.value = _s.value.copy(customer = c, pickingCustomer = false) }
 
     // ── Products ──
-    fun openPickProduct() { _s.value = _s.value.copy(pickingProduct = true, productSearch = "", productResults = emptyList()) }
+    fun openPickProduct() {
+        _s.value = _s.value.copy(pickingProduct = true, productSearch = "", productResults = emptyList())
+        // 開咗即刻 load 全部商品
+        viewModelScope.launch {
+            try {
+                val resp = ApiClient.service.searchProducts("")  // empty query returns all
+                _s.value = _s.value.copy(productResults = resp.body()?.data ?: emptyList())
+            } catch (_: Exception) {}
+        }
+    }
     fun closePickProduct() { _s.value = _s.value.copy(pickingProduct = false) }
     fun searchProduct(q: String) {
         _s.value = _s.value.copy(productSearch = q)
