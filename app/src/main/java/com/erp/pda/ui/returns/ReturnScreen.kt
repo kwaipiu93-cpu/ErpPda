@@ -21,6 +21,7 @@ import com.erp.pda.data.model.CreditNote
 import com.erp.pda.feedback.ScanFeedback
 import com.erp.pda.scanner.ScannerManager
 import com.erp.pda.ui.theme.*
+import com.erp.pda.ui.components.IosTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,16 +44,9 @@ fun ReturnScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(if (state.selectedCN != null) "退貨驗收" else "退貨單列表") },
-                navigationIcon = {
-                    if (state.selectedCN != null) {
-                        IconButton(onClick = viewModel::backToList) {
-                            Icon(Icons.Filled.ArrowBack, "返回")
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = TileRed, titleContentColor = Color.White, navigationIconContentColor = Color.White)
+            IosTopBar(
+                title = if (state.selectedCN != null) "退貨驗收" else "退貨單列表",
+                onBack = viewModel::backToList
             )
         }
     ) { padding ->

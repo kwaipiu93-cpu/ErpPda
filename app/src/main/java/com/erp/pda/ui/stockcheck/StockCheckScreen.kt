@@ -17,6 +17,7 @@ import com.erp.pda.ErpApplication
 import com.erp.pda.feedback.ScanFeedback
 import com.erp.pda.scanner.ScannerManager
 import com.erp.pda.ui.theme.*
+import com.erp.pda.ui.components.IosTopBar
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,16 +37,9 @@ fun StockCheckScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("快速查庫存") },
-                navigationIcon = {
-                    if (state.selectedProduct != null) {
-                        IconButton(onClick = viewModel::clearProduct) {
-                            Icon(Icons.Filled.ArrowBack, "返回")
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White)
+            IosTopBar(
+                title = "快速查庫存",
+                onBack = viewModel::clearProduct
             )
         }
     ) { padding ->

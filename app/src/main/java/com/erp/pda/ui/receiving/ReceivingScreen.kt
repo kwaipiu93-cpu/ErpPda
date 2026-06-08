@@ -20,6 +20,7 @@ import com.erp.pda.ErpApplication
 import com.erp.pda.feedback.ScanFeedback
 import com.erp.pda.scanner.ScannerManager
 import com.erp.pda.ui.theme.*
+import com.erp.pda.ui.components.IosTopBar
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,20 +51,9 @@ fun ReceivingScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(if (state.selectedPO != null) "採購收貨" else "選擇採購單") },
-                navigationIcon = {
-                    if (state.selectedPO != null) {
-                        IconButton(onClick = viewModel::backToList) {
-                            Icon(Icons.Filled.ArrowBack, "返回")
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Primary,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
-                )
+            IosTopBar(
+                title = if (state.selectedPO != null) "採購收貨" else "選擇採購單",
+                onBack = if (state.selectedPO != null) viewModel::backToList else null
             )
         }
     ) { padding ->

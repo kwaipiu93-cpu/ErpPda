@@ -15,6 +15,7 @@ import com.erp.pda.ErpApplication
 import com.erp.pda.feedback.ScanFeedback
 import com.erp.pda.scanner.ScannerManager
 import com.erp.pda.ui.theme.*
+import com.erp.pda.ui.components.IosTopBar
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,9 +37,9 @@ fun StocktakeScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("庫存盤點") },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White)
+            IosTopBar(
+                title = "庫存盤點",
+                onBack = { }
             )
         }
     ) { padding ->

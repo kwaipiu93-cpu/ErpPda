@@ -20,6 +20,7 @@ import com.erp.pda.data.model.InvoiceSummary
 import com.erp.pda.feedback.ScanFeedback
 import com.erp.pda.scanner.ScannerManager
 import com.erp.pda.ui.theme.*
+import com.erp.pda.ui.components.IosTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,16 +39,9 @@ fun InvoiceLookupScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(if (state.selectedInvoice != null) "發票詳情" else "發票查詢") },
-                navigationIcon = {
-                    if (state.selectedInvoice != null) {
-                        IconButton(onClick = viewModel::clearSelection) {
-                            Icon(Icons.Filled.ArrowBack, "返回")
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = TileAmber, titleContentColor = Color.White, navigationIconContentColor = Color.White)
+            IosTopBar(
+                title = if (state.selectedInvoice != null) "發票詳情" else "發票查詢",
+                onBack = if (state.selectedInvoice != null) viewModel::clearSelection else null
             )
         }
     ) { padding ->

@@ -1,9 +1,18 @@
 package com.erp.pda.ui.navigation
 
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.erp.pda.scanner.ScannerManager
 import com.erp.pda.ui.checkout.CheckoutScreen
@@ -24,7 +33,16 @@ import com.erp.pda.ui.transfer.TransferScreen
 
 object Routes {
     const val LOGIN = "login"
-    const val HOME = "home"
+    const val MAIN = "main"
+
+    // Tab roots
+    const val TAB_HOME = "tab_home"
+    const val TAB_PURCHASE = "tab_purchase"
+    const val TAB_SALES = "tab_sales"
+    const val TAB_WAREHOUSE = "tab_warehouse"
+    const val TAB_MORE = "tab_more"
+
+    // Detail screens (pushed on top of tabs)
     const val RECEIVING = "receiving"
     const val DISPATCH = "dispatch"
     const val CHECKOUT = "checkout"
@@ -40,6 +58,21 @@ object Routes {
     const val TRANSFER = "transfer"
 }
 
+data class BottomTab(
+    val route: String,
+    val title: String,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector
+)
+
+val bottomTabs = listOf(
+    BottomTab(Routes.TAB_HOME, "首頁", Icons.Filled.House, Icons.Outlined.House),
+    BottomTab(Routes.TAB_PURCHASE, "採購", Icons.Filled.ShoppingCart, Icons.Outlined.ShoppingCart),
+    BottomTab(Routes.TAB_SALES, "銷售", Icons.Filled.PointOfSale, Icons.Outlined.PointOfSale),
+    BottomTab(Routes.TAB_WAREHOUSE, "倉庫", Icons.Filled.Warehouse, Icons.Outlined.Warehouse),
+    BottomTab(Routes.TAB_MORE, "更多", Icons.Filled.MoreHoriz, Icons.Outlined.MoreHoriz)
+)
+
 @Composable
 fun NavGraph(
     scannerManager: ScannerManager,
@@ -52,75 +85,116 @@ fun NavGraph(
         composable(Routes.LOGIN) {
             LoginScreen(
                 onLoginSuccess = {
-                    navController.navigate(Routes.HOME) {
+                    navController.navigate(Routes.MAIN) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
                 }
             )
         }
 
-        composable(Routes.HOME) {
-            HomeScreen(
+        composable(Routes.MAIN) {
+            MainTabShell(
                 scannerManager = scannerManager,
-                onNavigate = { route -> navController.navigate(route) },
-                onLogout = {
-                    navController.navigate(Routes.LOGIN) {
-                        popUpTo(Routes.HOME) { inclusive = true }
-                    }
-                }
+                navController = navController
             )
         }
 
-        composable(Routes.RECEIVING) {
-            ReceivingScreen(scannerManager = scannerManager)
-        }
+        // Detail screens — full screen overlays
+        composable(Routes.RECEIVING) { ReceivingScreen(scannerManager = scannerManager) }
+        composable(Routes.DISPATCH) { DispatchScreen(scannerManager = scannerManager) }
+        composable(Routes.CHECKOUT) { CheckoutScreen(scannerManager = scannerManager) }
+        composable(Routes.INVOICE_LOOKUP) { InvoiceLookupScreen(scannerManager = scannerManager) }
+        composable(Routes.CUSTOMERS) { CustomerScreen(scannerManager = scannerManager) }
+        composable(Routes.CREATE_QUOTE) { CreateQuoteScreen(scannerManager = scannerManager) }
+        composable(Routes.RECORD_PAYMENT) { RecordPaymentScreen(scannerManager = scannerManager) }
+        composable(Routes.CREATE_PO) { CreatePoScreen(scannerManager = scannerManager) }
+        composable(Routes.LOOKUP) { LookupScreen(scannerManager = scannerManager) }
+        composable(Routes.STOCKTAKE) { StocktakeScreen(scannerManager = scannerManager) }
+        composable(Routes.STOCK_CHECK) { StockCheckScreen(scannerManager = scannerManager) }
+        composable(Routes.RETURN) { ReturnScreen(scannerManager = scannerManager) }
+        composable(Routes.TRANSFER) { TransferScreen(scannerManager = scannerManager) }
+    }
+}
 
-        composable(Routes.CHECKOUT) {
-            CheckoutScreen(scannerManager = scannerManager)
-        }
+/**
+ * iOS 風格底部 Tab Bar 主殼層
+ */
+@Composable
+fun MainTabShell(
+    scannerManager: ScannerManager,
+    navController: NavHostController
+) {
+    val tabNavController = rememberNavController()
+    val currentBackStack by tabNavController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStack?.destination?.route
 
-        composable(Routes.INVOICE_LOOKUP) {
-            InvoiceLookupScreen(scannerManager = scannerManager)
+    Scaffold(
+        bottomBar = {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.surface,
+                tonalElevation = 0.dp,
+                modifier = Modifier.navigationBarsPadding()
+            ) {
+                bottomTabs.forEach { tab ->
+                    val selected = currentRoute == tab.route
+                    NavigationBarItem(
+                        selected = selected,
+                        onClick = {
+                            if (currentRoute != tab.route) {
+                                tabNavController.navigate(tab.route) {
+                                    popUpTo(tabNavController.graph.startDestinationId) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        },
+                        icon = {
+                            Icon(
+                                imageVector = if (selected) tab.selectedIcon else tab.unselectedIcon,
+                                contentDescription = tab.title
+                            )
+                        },
+                        label = { Text(tab.title, style = MaterialTheme.typography.labelMedium) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = MaterialTheme.colorScheme.primary,
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            indicatorColor = MaterialTheme.colorScheme.primaryContainer
+                        )
+                    )
+                }
+            }
         }
-
-        composable(Routes.CUSTOMERS) {
-            CustomerScreen(scannerManager = scannerManager)
-        }
-
-        composable(Routes.CREATE_QUOTE) {
-            CreateQuoteScreen(scannerManager = scannerManager)
-        }
-
-        composable(Routes.RECORD_PAYMENT) {
-            RecordPaymentScreen(scannerManager = scannerManager)
-        }
-
-        composable(Routes.CREATE_PO) {
-            CreatePoScreen(scannerManager = scannerManager)
-        }
-
-        composable(Routes.DISPATCH) {
-            DispatchScreen(scannerManager = scannerManager)
-        }
-
-        composable(Routes.LOOKUP) {
-            LookupScreen(scannerManager = scannerManager)
-        }
-
-        composable(Routes.STOCKTAKE) {
-            StocktakeScreen(scannerManager = scannerManager)
-        }
-
-        composable(Routes.STOCK_CHECK) {
-            StockCheckScreen(scannerManager = scannerManager)
-        }
-
-        composable(Routes.RETURN) {
-            ReturnScreen(scannerManager = scannerManager)
-        }
-
-        composable(Routes.TRANSFER) {
-            TransferScreen(scannerManager = scannerManager)
+    ) { padding ->
+        NavHost(
+            navController = tabNavController,
+            startDestination = Routes.TAB_HOME,
+            modifier = Modifier.padding(padding)
+        ) {
+            composable(Routes.TAB_HOME) {
+                HomeScreen(
+                    scannerManager = scannerManager,
+                    onNavigate = { route -> navController.navigate(route) },
+                    onLogout = {
+                        navController.navigate(Routes.LOGIN) {
+                            popUpTo(Routes.MAIN) { inclusive = true }
+                        }
+                    }
+                )
+            }
+            composable(Routes.TAB_PURCHASE) {
+                PurchaseTab(onNavigate = { navController.navigate(it) })
+            }
+            composable(Routes.TAB_SALES) {
+                SalesTab(onNavigate = { navController.navigate(it) })
+            }
+            composable(Routes.TAB_WAREHOUSE) {
+                WarehouseTab(onNavigate = { navController.navigate(it) })
+            }
+            composable(Routes.TAB_MORE) {
+                MoreTab(onNavigate = { navController.navigate(it) })
+            }
         }
     }
 }

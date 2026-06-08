@@ -21,6 +21,7 @@ import com.erp.pda.data.model.StockTransfer
 import com.erp.pda.feedback.ScanFeedback
 import com.erp.pda.scanner.ScannerManager
 import com.erp.pda.ui.theme.*
+import com.erp.pda.ui.components.IosTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,16 +44,9 @@ fun TransferScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(if (state.selectedST != null) "調撥接收" else "在途調撥單") },
-                navigationIcon = {
-                    if (state.selectedST != null) {
-                        IconButton(onClick = viewModel::backToList) {
-                            Icon(Icons.Filled.ArrowBack, "返回")
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = TileIndigo, titleContentColor = Color.White, navigationIconContentColor = Color.White)
+            IosTopBar(
+                title = if (state.selectedST != null) "調撥接收" else "在途調撥單",
+                onBack = viewModel::backToList
             )
         }
     ) { padding ->

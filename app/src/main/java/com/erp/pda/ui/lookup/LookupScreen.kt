@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.erp.pda.feedback.ScanFeedback
 import com.erp.pda.scanner.ScannerManager
 import com.erp.pda.ui.theme.*
+import com.erp.pda.ui.components.IosTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,9 +32,9 @@ fun LookupScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("S/N 查詢") },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White)
+            IosTopBar(
+                title = "S/N 查詢",
+                onBack = { }
             )
         }
     ) { padding ->

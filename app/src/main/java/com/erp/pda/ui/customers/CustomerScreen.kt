@@ -23,6 +23,7 @@ import com.erp.pda.data.model.CustomerSummary
 import com.erp.pda.feedback.ScanFeedback
 import com.erp.pda.scanner.ScannerManager
 import com.erp.pda.ui.theme.*
+import com.erp.pda.ui.components.IosTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,22 +42,9 @@ fun CustomerScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text("客戶管理")
-                },
-                navigationIcon = {
-                    if (state.isViewingDetail) {
-                        IconButton(onClick = viewModel::backToList) {
-                            Icon(Icons.Filled.ArrowBack, "返回")
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = TileTeal,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
-                )
+            IosTopBar(
+                title = "客戶管理",
+                onBack = if (state.isViewingDetail) viewModel::backToList else null
             )
         }
     ) { padding ->

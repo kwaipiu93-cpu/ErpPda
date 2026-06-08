@@ -20,6 +20,7 @@ import com.erp.pda.data.model.DeliveryNote
 import com.erp.pda.feedback.ScanFeedback
 import com.erp.pda.scanner.ScannerManager
 import com.erp.pda.ui.theme.*
+import com.erp.pda.ui.components.IosTopBar
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,16 +45,9 @@ fun DispatchScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(if (state.selectedDN != null) "出貨確認" else "選擇出貨單") },
-                navigationIcon = {
-                    if (state.selectedDN != null) {
-                        IconButton(onClick = viewModel::backToList) {
-                            Icon(Icons.Filled.ArrowBack, "返回")
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White)
+            IosTopBar(
+                title = if (state.selectedDN != null) "出貨確認" else "選擇出貨單",
+                onBack = if (state.selectedDN != null) viewModel::backToList else null
             )
         }
     ) { padding ->

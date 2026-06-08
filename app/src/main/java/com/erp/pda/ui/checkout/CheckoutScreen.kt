@@ -20,6 +20,7 @@ import com.erp.pda.data.model.Product
 import com.erp.pda.feedback.ScanFeedback
 import com.erp.pda.scanner.ScannerManager
 import com.erp.pda.ui.theme.*
+import com.erp.pda.ui.components.IosTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,16 +54,13 @@ fun CheckoutScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(when (state.step) {
-                        CheckoutStep.CART -> "快速結帳 - 購物車"
-                        CheckoutStep.CUSTOMER -> "選擇客戶"
-                        CheckoutStep.PAYMENT -> "確認付款"
-                        CheckoutStep.DONE -> "結帳完成 ✅"
-                    })
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = TileCyan, titleContentColor = Color.White)
+            IosTopBar(
+                title = when (state.step) {
+                    CheckoutStep.CART -> "快速結帳 - 購物車"
+                    CheckoutStep.CUSTOMER -> "選擇客戶"
+                    CheckoutStep.PAYMENT -> "確認付款"
+                    CheckoutStep.DONE -> "結帳完成 ✅"
+                }
             )
         }
     ) { padding ->

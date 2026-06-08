@@ -18,6 +18,7 @@ import com.erp.pda.ErpApplication
 import com.erp.pda.feedback.ScanFeedback
 import com.erp.pda.scanner.ScannerManager
 import com.erp.pda.ui.theme.*
+import com.erp.pda.ui.components.IosTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,12 +41,9 @@ fun CreatePoScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(if (state.step == 2) "建立完成" else "建立採購單") },
-                navigationIcon = {
-                    if (state.step == 1) IconButton(onClick = viewModel::backToSupplier) { Icon(Icons.Filled.ArrowBack, "返回") }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = TileBlue, titleContentColor = Color.White, navigationIconContentColor = Color.White)
+            IosTopBar(
+                title = if (state.step == 2) "建立完成" else "建立採購單",
+                onBack = viewModel::backToSupplier
             )
         }
     ) { padding ->
