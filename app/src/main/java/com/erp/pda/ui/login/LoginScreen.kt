@@ -54,6 +54,11 @@ fun LoginScreen(
                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
             )
 
+            if (state.isLoading && !state.autoLoginAttempted) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("驗證中...", color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f))
+            }
+
             Spacer(modifier = Modifier.height(48.dp))
 
             // Login Card

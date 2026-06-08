@@ -14,6 +14,8 @@ object SessionManager {
     private const val KEY_USER_ID = "user_id"
     private const val KEY_USER_NAME = "user_name"
     private const val KEY_USER_ROLE = "user_role"
+    private const val KEY_SAVED_EMAIL = "saved_email"
+    private const val KEY_SAVED_PASSWORD = "saved_password"
 
     private lateinit var prefs: SharedPreferences
 
@@ -30,8 +32,18 @@ object SessionManager {
                 putString(KEY_USER_NAME, it.displayName)
                 putString(KEY_USER_ROLE, it.role)
             }
-        }.apply()
+            apply() // synchronous commit — critical for persistence
+        }
     }
+
+    /** 記住帳號密碼（退出 app 後自動登入用） */
+    fun saveCredentials(email: String, password: String) {
+        prefs.edit().putString(KEY_SAVED_EMAIL, email).putString(KEY_SAVED_PASSWORD, password).apply()
+    }
+
+    fun getSavedEmail(): String = prefs.getString(KEY_SAVED_EMAIL, "") ?: ""
+    fun getSavedPassword(): String = prefs.getString(KEY_SAVED_PASSWORD, "") ?: ""
+    fun hasSavedCredentials(): Boolean = getSavedEmail().isNotBlank() && getSavedPassword().isNotBlank()
 
     fun getAccessToken(): String? = prefs.getString(KEY_ACCESS_TOKEN, null)
     fun getRefreshToken(): String? = prefs.getString(KEY_REFRESH_TOKEN, null)
@@ -49,6 +61,12 @@ object SessionManager {
     fun isLoggedIn(): Boolean = !getAccessToken().isNullOrBlank()
 
     fun logout() {
+        // 只清除 token，保留帳號密碼方便下次自動登入
+        prefs.edit().remove(KEY_ACCESS_TOKEN).remove(KEY_REFRESH_TOKEN).apply()
+    }
+
+    /** 完全清除（含帳密） */
+    fun clearAll() {
         prefs.edit().clear().apply()
     }
 }

@@ -15,7 +15,8 @@ data class LoginUiState(
     val password: String = "",
     val isLoading: Boolean = false,
     val error: String? = null,
-    val isLoggedIn: Boolean = false
+    val isLoggedIn: Boolean = false,
+    val autoLoginAttempted: Boolean = false
 )
 
 class LoginViewModel : ViewModel() {
@@ -23,18 +24,35 @@ class LoginViewModel : ViewModel() {
     val state: StateFlow<LoginUiState> = _state.asStateFlow()
 
     init {
-        // App 啟動時自動檢查是否已登入
+        val savedEmail = SessionManager.getSavedEmail()
+        val savedPassword = SessionManager.getSavedPassword()
+
         if (SessionManager.isLoggedIn()) {
-            _state.value = _state.value.copy(isLoading = true)
+            // 有 token → refresh + 直入
+            _state.value = LoginUiState(
+                email = savedEmail,
+                password = savedPassword,
+                isLoading = true
+            )
             tryAutoLogin()
+        } else if (SessionManager.hasSavedCredentials()) {
+            // 無 token 但有記住密碼 → 自動登入
+            _state.value = LoginUiState(
+                email = savedEmail,
+                password = savedPassword,
+                isLoading = true,
+                autoLoginAttempted = true
+            )
+            loginWithCredentials(savedEmail, savedPassword)
+        } else {
+            // 首次使用 → 顯示登入頁面（預填 email 如有）
+            _state.value = LoginUiState(email = savedEmail)
         }
     }
 
-    /** 嘗試用現有 token 自動登入（session 有效則免重入密碼） */
     private fun tryAutoLogin() {
         viewModelScope.launch {
             try {
-                // 試 refresh token 確保有效
                 val refreshToken = SessionManager.getRefreshToken()
                 if (!refreshToken.isNullOrBlank()) {
                     val resp = ApiClient.service.refreshToken(
@@ -46,11 +64,38 @@ class LoginViewModel : ViewModel() {
                         }
                     }
                 }
-                // 有 token 就直接登入（refresh 失敗都照入，靠 401 interceptor 處理）
                 _state.value = _state.value.copy(isLoading = false, isLoggedIn = true)
             } catch (_: Exception) {
-                // 有 token 就照入，網絡錯誤唔應該阻住
                 _state.value = _state.value.copy(isLoading = false, isLoggedIn = true)
+            }
+        }
+    }
+
+    /** 用儲存的帳密自動登入 */
+    private fun loginWithCredentials(email: String, password: String) {
+        viewModelScope.launch {
+            try {
+                val response = ApiClient.service.login(LoginRequest(email, password))
+                if (response.isSuccessful && response.body()?.ok == true) {
+                    response.body()?.data?.let { data ->
+                        SessionManager.saveLogin(data)
+                        SessionManager.saveCredentials(email, password)
+                        _state.value = _state.value.copy(isLoading = false, isLoggedIn = true)
+                        return@launch
+                    }
+                }
+                // 登入失敗 → 顯示表單（預填帳密）
+                _state.value = LoginUiState(
+                    email = email,
+                    password = "",
+                    error = response.body()?.error?.message ?: "自動登入失敗，請重新輸入密碼"
+                )
+            } catch (e: Exception) {
+                _state.value = LoginUiState(
+                    email = email,
+                    password = "",
+                    error = "網絡錯誤: ${e.localizedMessage}"
+                )
             }
         }
     }
@@ -77,6 +122,7 @@ class LoginViewModel : ViewModel() {
                 if (response.isSuccessful && response.body()?.ok == true) {
                     response.body()?.data?.let { data ->
                         SessionManager.saveLogin(data)
+                        SessionManager.saveCredentials(s.email, s.password)
                         _state.value = _state.value.copy(isLoading = false, isLoggedIn = true)
                         return@launch
                     }

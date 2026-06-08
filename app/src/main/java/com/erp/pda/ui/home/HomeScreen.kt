@@ -71,7 +71,7 @@ fun HomeScreen(
                 },
                 actions = {
                     IconButton(onClick = {
-                        SessionManager.logout()
+                        SessionManager.clearAll()
                         onLogout()
                     }) {
                         Icon(Icons.Filled.Logout, contentDescription = "登出")
