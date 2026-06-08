@@ -358,8 +358,10 @@ data class QuoteItemRequest(
 data class QuotationResponse(
     @SerializedName("id") val id: Int = 0,
     @SerializedName("invoice_number") val invoiceNumber: String = "",
-    @SerializedName("grand_total_hkd") val grandTotalHkd: Double = 0.0
-)
+    @SerializedName("grand_total_hkd") val grandTotalHkdRaw: String = "0"
+) {
+    val grandTotalHkd: Double get() = grandTotalHkdRaw.toDoubleOrNull() ?: 0.0
+}
 
 // ─── Payment Recording ───
 
