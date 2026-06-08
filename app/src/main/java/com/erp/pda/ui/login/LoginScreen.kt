@@ -12,12 +12,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.erp.pda.data.api.SessionManager
 
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
     viewModel: LoginViewModel = viewModel()
 ) {
+    // 同步檢查：已有 token → 直接跳 Home，唔等 ViewModel async refresh
+    val alreadyLoggedIn = remember { SessionManager.isLoggedIn() }
+    LaunchedEffect(Unit) {
+        if (alreadyLoggedIn) onLoginSuccess()
+    }
+
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(state.isLoggedIn) {
