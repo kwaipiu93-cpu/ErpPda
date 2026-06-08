@@ -147,7 +147,7 @@ interface ErpApiService {
     @POST("quotations")
     suspend fun createQuotation(@Body request: CreateQuotationRequest): Response<ApiResponse<QuotationResponse>>
 
-    @PUT("quotations/{id}")
+    @PUT("invoices/{id}")
     suspend fun updateQuotation(
         @Path("id") id: Int,
         @Body request: UpdateQuotationRequest
