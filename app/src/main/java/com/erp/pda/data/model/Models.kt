@@ -67,9 +67,11 @@ data class PurchaseOrder(
     @SerializedName("warehouse_id") val warehouseId: Int = 0,
     @SerializedName("fsm_status") val fsmStatus: String = "",
     @SerializedName("currency_code") val currencyCode: String = "",
-    @SerializedName("total_amount_hkd") val totalAmountHkd: Double = 0.0,
+    @SerializedName("total_amount_hkd") val totalAmountHkdRaw: String = "0",
     @SerializedName("ordered_at") val orderedAt: String = ""
-)
+) {
+    val totalAmountHkd: Double get() = totalAmountHkdRaw.toDoubleOrNull() ?: 0.0
+}
 
 data class PurchaseOrderDetail(
     val id: Int = 0,
@@ -304,22 +306,24 @@ data class InvoiceSummary(
     @SerializedName("document_type") val documentType: String = "",
     @SerializedName("customer_id") val customerId: Int = 0,
     @SerializedName("customer_name") val customerName: String = "",
-    @SerializedName("grand_total_hkd") val grandTotalHkd: Double = 0.0,
+    @SerializedName("grand_total_hkd") val grandTotalHkdRaw: String = "0",
     @SerializedName("payment_status") val paymentStatus: String = "",
     @SerializedName("lifecycle_status") val lifecycleStatus: String = "",
     @SerializedName("shipping_status") val shippingStatus: String = "",
     @SerializedName("issue_date") val issueDate: String = ""
-)
+) {
+    val grandTotalHkd: Double get() = grandTotalHkdRaw.toDoubleOrNull() ?: 0.0
+}
 
 data class InvoiceDetail(
     val id: Int = 0,
     @SerializedName("invoice_number") val invoiceNumber: String = "",
     @SerializedName("document_type") val documentType: String = "",
     @SerializedName("customer_name") val customerName: String = "",
-    @SerializedName("grand_total_hkd") val grandTotalHkd: Double = 0.0,
-    @SerializedName("paid_amount_hkd") val paidAmountHkd: Double = 0.0,
-    @SerializedName("discount_amount") val discountAmount: Double = 0.0,
-    @SerializedName("delivery_charge") val deliveryCharge: Double = 0.0,
+    @SerializedName("grand_total_hkd") val grandTotalHkdRaw: String = "0",
+    @SerializedName("paid_amount_hkd") val paidAmountHkdRaw: String = "0",
+    @SerializedName("discount_amount") val discountAmountRaw: String = "0",
+    @SerializedName("delivery_charge") val deliveryChargeRaw: String = "0",
     @SerializedName("payment_status") val paymentStatus: String = "",
     @SerializedName("lifecycle_status") val lifecycleStatus: String = "",
     @SerializedName("shipping_status") val shippingStatus: String = "",
@@ -327,7 +331,12 @@ data class InvoiceDetail(
     @SerializedName("due_date") val dueDate: String = "",
     @SerializedName("notes") val notes: String? = null,
     @SerializedName("items") val items: List<InvoiceDetailItem> = emptyList()
-)
+) {
+    val grandTotalHkd: Double get() = grandTotalHkdRaw.toDoubleOrNull() ?: 0.0
+    val paidAmountHkd: Double get() = paidAmountHkdRaw.toDoubleOrNull() ?: 0.0
+    val discountAmount: Double get() = discountAmountRaw.toDoubleOrNull() ?: 0.0
+    val deliveryCharge: Double get() = deliveryChargeRaw.toDoubleOrNull() ?: 0.0
+}
 
 data class InvoiceDetailItem(
     val id: Int = 0,
@@ -336,9 +345,12 @@ data class InvoiceDetailItem(
     @SerializedName("product_name") val productName: String = "",
     val qty: Int = 0,
     @SerializedName("qty_shipped") val qtyShipped: Int = 0,
-    @SerializedName("unit_price") val unitPrice: Double = 0.0,
-    @SerializedName("line_total_hkd") val lineTotalHkd: Double = 0.0
-)
+    @SerializedName("unit_price") val unitPriceRaw: String = "0",
+    @SerializedName("line_total_hkd") val lineTotalHkdRaw: String = "0"
+) {
+    val unitPrice: Double get() = unitPriceRaw.toDoubleOrNull() ?: 0.0
+    val lineTotalHkd: Double get() = lineTotalHkdRaw.toDoubleOrNull() ?: 0.0
+}
 
 // ─── Quotation Creation ───
 
