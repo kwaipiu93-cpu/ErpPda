@@ -24,16 +24,22 @@ import com.erp.pda.ui.theme.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InvoiceListScreen(
+    salesOnly: Boolean = false,
     onNavigate: (String) -> Unit,
     onBack: () -> Unit = {},
     viewModel: InvoiceListViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
+    // Apply salesOnly mode
+    LaunchedEffect(salesOnly) {
+        viewModel.setSalesOnly(salesOnly)
+    }
+
     val state by viewModel.state.collectAsState()
 
     Scaffold(
         topBar = {
             IosTopBar(
-                title = "發票列表",
+                title = if (salesOnly) "銷售訂單" else "發票列表",
                 onBack = onBack,
                 actions = {
                     IconButton(onClick = { viewModel.refresh() }) {

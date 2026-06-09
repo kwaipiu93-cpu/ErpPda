@@ -20,12 +20,23 @@ data class InvoiceListUiState(
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
     val error: String? = null,
-    val activeFilter: InvoiceFilter = InvoiceFilter.ALL
+    val activeFilter: InvoiceFilter = InvoiceFilter.ALL,
+    val salesOnly: Boolean = false
 )
 
 class InvoiceListViewModel : ViewModel() {
     private val _state = MutableStateFlow(InvoiceListUiState())
     val state: StateFlow<InvoiceListUiState> = _state.asStateFlow()
+
+    private var _salesOnly = false
+
+    fun setSalesOnly(v: Boolean) {
+        if (_salesOnly != v) {
+            _salesOnly = v
+            _state.value = _state.value.copy(salesOnly = v, invoices = emptyList())
+            loadInvoices()
+        }
+    }
 
     init {
         loadInvoices()
@@ -40,7 +51,11 @@ class InvoiceListViewModel : ViewModel() {
                     status = current.activeFilter.apiStatus,
                     docType = "INV"
                 )
-                val data = resp.body()?.data ?: emptyList()
+                var data = resp.body()?.data ?: emptyList()
+                // Sales orders: only Active lifecycle
+                if (_salesOnly) {
+                    data = data.filter { it.lifecycleStatus == "Active" }
+                }
                 _state.value = _state.value.copy(
                     invoices = data,
                     isLoading = false,

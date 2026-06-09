@@ -65,6 +65,7 @@ object Routes {
     const val RETURN = "return"
     const val TRANSFER = "transfer"
     const val INVOICE_LIST = "invoice_list"
+    const val SALES_ORDERS = "sales_orders"
     const val PO_LIST = "po_list"
 }
 
@@ -125,6 +126,9 @@ fun NavGraph(
         composable(Routes.TRANSFER) { TransferScreen(scannerManager = scannerManager) }
         composable(Routes.INVOICE_LIST) {
             InvoiceListScreen(onNavigate = { navController.navigate(it) }, onBack = { navController.popBackStack() })
+        }
+        composable(Routes.SALES_ORDERS) {
+            InvoiceListScreen(salesOnly = true, onNavigate = { navController.navigate(it) }, onBack = { navController.popBackStack() })
         }
         composable(Routes.PO_LIST) {
             PoListScreen(onNavigate = { navController.navigate(it) }, onBack = { navController.popBackStack() })
