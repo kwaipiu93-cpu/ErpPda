@@ -459,3 +459,35 @@ data class SalesOrderSummary(
 ) {
     val totalAmountHkd: Double get() = totalAmountHkdRaw.toDoubleOrNull() ?: 0.0
 }
+
+data class SalesOrderDetail(
+    val id: Int = 0,
+    @SerializedName("so_number") val soNumber: String = "",
+    @SerializedName("customer_id") val customerId: Int = 0,
+    @SerializedName("customer_name") val customerName: String = "",
+    @SerializedName("warehouse_id") val warehouseId: Int = 0,
+    @SerializedName("project_id") val projectId: Int? = null,
+    val status: String = "",
+    @SerializedName("total_amount_hkd") val totalAmountHkdRaw: String = "0",
+    @SerializedName("confirmed_at") val confirmedAt: String? = null,
+    val notes: String? = null,
+    @SerializedName("created_at") val createdAt: String = "",
+    @SerializedName("items") val items: List<SalesOrderItem> = emptyList()
+) {
+    val totalAmountHkd: Double get() = totalAmountHkdRaw.toDoubleOrNull() ?: 0.0
+}
+
+data class SalesOrderItem(
+    val id: Int = 0,
+    @SerializedName("product_id") val productId: Int = 0,
+    @SerializedName("sku_code") val skuCode: String = "",
+    @SerializedName("name_zh") val nameZh: String = "",
+    val qty: Int = 0,
+    @SerializedName("qty_fulfilled") val qtyFulfilled: Int = 0,
+    @SerializedName("unit_price") val unitPriceRaw: String = "0",
+    @SerializedName("line_total_hkd") val lineTotalHkdRaw: String = "0",
+    @SerializedName("sort_order") val sortOrder: Int = 0
+) {
+    val unitPrice: Double get() = unitPriceRaw.toDoubleOrNull() ?: 0.0
+    val lineTotalHkd: Double get() = lineTotalHkdRaw.toDoubleOrNull() ?: 0.0
+}

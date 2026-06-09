@@ -30,6 +30,7 @@ import com.erp.pda.ui.lookup.LookupScreen
 import com.erp.pda.ui.polist.PoListScreen
 import com.erp.pda.ui.quotedetail.QuoteDetailScreen
 import com.erp.pda.ui.solist.SoListScreen
+import com.erp.pda.ui.sodetail.SoDetailScreen
 import com.erp.pda.ui.quotelist.QuoteListScreen
 import com.erp.pda.ui.receiving.ReceivingScreen
 import com.erp.pda.ui.recordpayment.RecordPaymentScreen
@@ -67,6 +68,7 @@ object Routes {
     const val TRANSFER = "transfer"
     const val INVOICE_LIST = "invoice_list"
     const val SALES_ORDERS = "sales_orders"
+    const val SO_DETAIL = "so_detail/{id}"
     const val PO_LIST = "po_list"
 }
 
@@ -129,7 +131,17 @@ fun NavGraph(
             InvoiceListScreen(onNavigate = { navController.navigate(it) }, onBack = { navController.popBackStack() })
         }
         composable(Routes.SALES_ORDERS) {
-            SoListScreen(onBack = { navController.popBackStack() }, onNavigateToDetail = { id -> /* TODO: SO detail screen */ })
+            SoListScreen(
+                onBack = { navController.popBackStack() },
+                onNavigateToDetail = { id -> navController.navigate("so_detail/$id") }
+            )
+        }
+        composable(
+            Routes.SO_DETAIL,
+            arguments = listOf(navArgument("id") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val soId = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: return@composable
+            SoDetailScreen(soId = soId, onBack = { navController.popBackStack() })
         }
         composable(Routes.PO_LIST) {
             PoListScreen(onNavigate = { navController.navigate(it) }, onBack = { navController.popBackStack() })

@@ -197,4 +197,7 @@ interface ErpApiService {
     suspend fun getSalesOrders(
         @Query("status") status: String? = null
     ): Response<ApiResponse<List<SalesOrderSummary>>>
+
+    @GET("sales-orders/{id}")
+    suspend fun getSalesOrder(@Path("id") id: Int): Response<ApiResponse<SalesOrderDetail>>
 }
