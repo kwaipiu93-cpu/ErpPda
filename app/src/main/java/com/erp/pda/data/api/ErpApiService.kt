@@ -153,6 +153,10 @@ interface ErpApiService {
         @Body request: UpdateQuotationRequest
     ): Response<ApiResponse<Any>>
 
+    @GET("quotations/{id}/pdf")
+    @Streaming
+    suspend fun getQuotationPdf(@Path("id") id: Int): Response<okhttp3.ResponseBody>
+
     // ─── Invoices (update) ───
 
     @PUT("invoices/{id}")

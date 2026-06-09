@@ -60,6 +60,10 @@ data class QuoteDetailUiState(
     val editItemPrice: String = "",
     val editItemDesc: String = "",
 
+    // PDF
+    val sharingPdf: Boolean = false,
+    val pdfError: String? = null,
+
     // Submit
     val saving: Boolean = false,
     val feedback: String? = null,
@@ -333,4 +337,27 @@ class QuoteDetailViewModel : ViewModel() {
     }
 
     fun clearFeedback() { _state.value = _state.value.copy(feedback = null) }
+
+    // ── PDF Share ──
+    fun sharePdf(quoteId: Int, fileName: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(sharingPdf = true, pdfError = null)
+            try {
+                val resp = ApiClient.service.getQuotationPdf(quoteId)
+                if (resp.isSuccessful) {
+                    val body = resp.body() ?: throw Exception("Empty response")
+                    val file = java.io.File(
+                        com.erp.pda.ErpApplication.instance.cacheDir,
+                        "$fileName.pdf"
+                    )
+                    file.outputStream().use { body.byteStream().copyTo(it) }
+                    _state.value = _state.value.copy(sharingPdf = false, feedback = "PDF 已儲存: ${file.absolutePath}")
+                } else {
+                    _state.value = _state.value.copy(sharingPdf = false, pdfError = "下載失敗: ${resp.code()}")
+                }
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(sharingPdf = false, pdfError = "錯誤: ${e.localizedMessage}")
+            }
+        }
+    }
 }

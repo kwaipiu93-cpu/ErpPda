@@ -54,6 +54,12 @@ fun QuoteDetailScreen(
                         IconButton(onClick = viewModel::startEditing) {
                             Icon(Icons.Filled.Edit, "編輯", tint = IosBlue)
                         }
+                        IconButton(onClick = {
+                            val d = state.detail ?: return@IconButton
+                            viewModel.sharePdf(d.id, d.invoiceNumber)
+                        }) {
+                            Icon(Icons.Filled.PictureAsPdf, "發送PDF", tint = IosRed)
+                        }
                     }
                 }
             )
