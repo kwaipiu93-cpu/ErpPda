@@ -157,6 +157,21 @@ interface ErpApiService {
     @Streaming
     suspend fun getQuotationPdf(@Path("id") id: Int): Response<okhttp3.ResponseBody>
 
+    @POST("quotations/{id}/send")
+    suspend fun sendQuotation(@Path("id") id: Int): Response<ApiResponse<Any>>
+
+    @POST("quotations/{id}/void")
+    suspend fun voidQuotation(@Path("id") id: Int): Response<ApiResponse<Any>>
+
+    @POST("quotations/{id}/accept")
+    suspend fun acceptQuotation(@Path("id") id: Int): Response<ApiResponse<Any>>
+
+    @POST("quotations/{id}/reopen")
+    suspend fun reopenQuotation(@Path("id") id: Int): Response<ApiResponse<Any>>
+
+    @POST("quotations/{id}/revert-draft")
+    suspend fun revertQuotationToDraft(@Path("id") id: Int): Response<ApiResponse<Any>>
+
     // ─── Invoices (update) ───
 
     @PUT("invoices/{id}")

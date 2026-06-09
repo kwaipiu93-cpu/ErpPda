@@ -308,6 +308,7 @@ data class InvoiceSummary(
     @SerializedName("customer_name") val customerName: String = "",
     @SerializedName("grand_total_hkd") val grandTotalHkdRaw: String = "0",
     @SerializedName("payment_status") val paymentStatus: String = "",
+    @SerializedName("quote_status") val quoteStatus: String = "",
     @SerializedName("lifecycle_status") val lifecycleStatus: String = "",
     @SerializedName("shipping_status") val shippingStatus: String = "",
     @SerializedName("issue_date") val issueDate: String = ""
