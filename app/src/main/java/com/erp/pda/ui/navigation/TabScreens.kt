@@ -30,7 +30,7 @@ fun SalesTab(onNavigate: (String) -> Unit) {
         title = "銷售",
         items = listOf(
             IosListItem("報價查詢", "瀏覽及編輯報價單", Icons.Filled.ListAlt, IosOrange, Routes.QUOTE_LIST),
-            IosListItem("發票列表", "瀏覽全部發票", Icons.Filled.Receipt, IosYellow, Routes.INVOICE_LIST),
+            IosListItem("銷售訂單", "瀏覽全部發票", Icons.Filled.Receipt, IosYellow, Routes.INVOICE_LIST),
             IosListItem("快速結帳", "B2C 一鍵現結", Icons.Filled.PointOfSale, IosMint, Routes.CHECKOUT),
             IosListItem("客戶管理", "管理客戶主檔", Icons.Filled.People, IosTeal, Routes.CUSTOMERS),
             IosListItem("收款記錄", "登記客戶付款", Icons.Filled.Payments, IosGreen, Routes.RECORD_PAYMENT),

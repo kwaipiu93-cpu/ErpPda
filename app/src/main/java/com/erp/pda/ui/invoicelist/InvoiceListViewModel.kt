@@ -38,7 +38,7 @@ class InvoiceListViewModel : ViewModel() {
             try {
                 val resp = ApiClient.service.getInvoices(
                     status = current.activeFilter.apiStatus,
-                    docType = null
+                    docType = "INV"
                 )
                 val data = resp.body()?.data ?: emptyList()
                 _state.value = _state.value.copy(
