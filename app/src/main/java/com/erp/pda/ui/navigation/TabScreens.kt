@@ -15,8 +15,7 @@ fun PurchaseTab(onNavigate: (String) -> Unit) {
     IosGroupedList(
         title = "採購",
         items = listOf(
-            IosListItem("採購單列表", "瀏覽全部採購單", Icons.AutoMirrored.Filled.ListAlt, IosBlue, Routes.PO_LIST),
-            IosListItem("建立採購單", "向供應商下單", Icons.Filled.AddShoppingCart, IosIndigo, Routes.CREATE_PO),
+            IosListItem("採購單列表", "瀏覽及管理採購單", Icons.AutoMirrored.Filled.ListAlt, IosBlue, Routes.PO_LIST),
             IosListItem("採購收貨", "掃描 S/N 收貨入庫", Icons.Filled.Inventory, IosGreen, Routes.RECEIVING),
             IosListItem("S/N 保固查詢", "查詢上下游保固期", Icons.Filled.Search, IosOrange, Routes.LOOKUP),
         ),
@@ -30,11 +29,9 @@ fun SalesTab(onNavigate: (String) -> Unit) {
     IosGroupedList(
         title = "銷售",
         items = listOf(
-            IosListItem("發票列表", "瀏覽全部發票", Icons.Filled.Receipt, IosYellow, Routes.INVOICE_LIST),
-            IosListItem("建立報價", "新增客戶報價單", Icons.Filled.Description, IosOrange, Routes.CREATE_QUOTE),
             IosListItem("報價查詢", "瀏覽及編輯報價單", Icons.Filled.ListAlt, IosOrange, Routes.QUOTE_LIST),
+            IosListItem("發票列表", "瀏覽全部發票", Icons.Filled.Receipt, IosYellow, Routes.INVOICE_LIST),
             IosListItem("快速結帳", "B2C 一鍵現結", Icons.Filled.PointOfSale, IosMint, Routes.CHECKOUT),
-            IosListItem("發票查詢", "查詢發票及明細", Icons.Filled.Search, IosTeal, Routes.INVOICE_LOOKUP),
             IosListItem("客戶管理", "管理客戶主檔", Icons.Filled.People, IosTeal, Routes.CUSTOMERS),
             IosListItem("收款記錄", "登記客戶付款", Icons.Filled.Payments, IosGreen, Routes.RECORD_PAYMENT),
         ),

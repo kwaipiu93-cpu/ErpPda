@@ -133,7 +133,8 @@ fun NavGraph(
             QuoteListScreen(
                 scannerManager = scannerManager,
                 onBack = { navController.popBackStack() },
-                onNavigateToDetail = { id -> navController.navigate("quote_detail/$id") }
+                onNavigateToDetail = { id -> navController.navigate("quote_detail/$id") },
+                onNavigateToCreate = { navController.navigate(Routes.CREATE_QUOTE) }
             )
         }
         composable(

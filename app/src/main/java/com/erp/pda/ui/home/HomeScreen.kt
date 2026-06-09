@@ -38,7 +38,8 @@ fun HomeScreen(
     val userName = SessionManager.getUserName()
 
     val quickActions = listOf(
-        QuickAction("建立報價", "新增客戶報價單", { QuickIcon(Icons.Filled.Description, IosOrange) }, Routes.CREATE_QUOTE),
+        QuickAction("報價查詢", "瀏覽及編輯報價單", { QuickIcon(Icons.Filled.ListAlt, IosOrange) }, Routes.QUOTE_LIST),
+        QuickAction("發票列表", "瀏覽全部發票", { QuickIcon(Icons.Filled.Receipt, IosYellow) }, Routes.INVOICE_LIST),
         QuickAction("快速結帳", "B2C 一鍵現結", { QuickIcon(Icons.Filled.PointOfSale, IosMint) }, Routes.CHECKOUT),
         QuickAction("採購收貨", "掃碼收貨入庫", { QuickIcon(Icons.Filled.Inventory, IosBlue) }, Routes.RECEIVING),
         QuickAction("出貨確認", "掃碼出貨簽收", { QuickIcon(Icons.Filled.LocalShipping, IosGreen) }, Routes.DISPATCH),

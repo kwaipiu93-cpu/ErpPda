@@ -26,6 +26,7 @@ import com.erp.pda.ui.theme.*
 fun QuoteListScreen(
     scannerManager: ScannerManager,
     onNavigateToDetail: (Int) -> Unit,
+    onNavigateToCreate: () -> Unit = {},
     onBack: () -> Unit = {},
     viewModel: QuoteListViewModel = viewModel()
 ) {
@@ -34,6 +35,15 @@ fun QuoteListScreen(
     Scaffold(
         topBar = {
             IosTopBar(title = "報價查詢", onBack = onBack)
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { onNavigateToCreate() },
+                containerColor = IosBlue,
+                contentColor = IosWhite
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "建立報價")
+            }
         }
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
