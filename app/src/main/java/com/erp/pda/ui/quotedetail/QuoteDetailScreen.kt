@@ -351,34 +351,57 @@ fun QuoteDetailScreen(
                                     color = if (item.isDeleted) IosGray2 else IosSecondaryLabel
                                 )
                                 if (state.editItemIdx == idx) {
-                                    Spacer(Modifier.height(4.dp))
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        OutlinedTextField(
-                                            value = state.editItemQty,
-                                            onValueChange = viewModel::setEditItemQty,
-                                            label = { Text("數量") },
-                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                            singleLine = true,
-                                            modifier = Modifier.width(80.dp),
-                                            shape = RoundedCornerShape(8.dp)
-                                        )
-                                        Spacer(Modifier.width(8.dp))
-                                        OutlinedTextField(
-                                            value = state.editItemPrice,
-                                            onValueChange = viewModel::setEditItemPrice,
-                                            label = { Text("單價") },
-                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                                            singleLine = true,
-                                            modifier = Modifier.width(120.dp),
-                                            shape = RoundedCornerShape(8.dp)
-                                        )
-                                        IconButton(onClick = viewModel::saveEditItem) {
-                                            Icon(Icons.Filled.Check, "確認", tint = IosGreen)
-                                        }
-                                        IconButton(onClick = viewModel::cancelEditItem) {
-                                            Icon(Icons.Filled.Close, "取消", tint = IosRed)
-                                        }
-                                    }
+                                    // ═══ Edit Item Dialog ═══
+                                    AlertDialog(
+                                        onDismissRequest = viewModel::cancelEditItem,
+                                        title = { Text("編輯項目", fontWeight = FontWeight.Bold) },
+                                        text = {
+                                            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Text("${item.skuCode} - ${item.productName}", fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                                                }
+                                                OutlinedTextField(
+                                                    value = state.editItemQty,
+                                                    onValueChange = viewModel::setEditItemQty,
+                                                    label = { Text("數量") },
+                                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                                    singleLine = true,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    shape = RoundedCornerShape(10.dp)
+                                                )
+                                                OutlinedTextField(
+                                                    value = state.editItemPrice,
+                                                    onValueChange = viewModel::setEditItemPrice,
+                                                    label = { Text("單價 (HKD)") },
+                                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                                    singleLine = true,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    shape = RoundedCornerShape(10.dp)
+                                                )
+                                                OutlinedTextField(
+                                                    value = state.editItemDesc,
+                                                    onValueChange = viewModel::setEditItemDesc,
+                                                    label = { Text("描述（可選）") },
+                                                    singleLine = true,
+                                                    maxLines = 2,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    shape = RoundedCornerShape(10.dp)
+                                                )
+                                            }
+                                        },
+                                        confirmButton = {
+                                            Button(
+                                                onClick = viewModel::saveEditItem,
+                                                colors = ButtonDefaults.buttonColors(containerColor = IosBlue),
+                                                shape = RoundedCornerShape(10.dp)
+                                            ) { Text("確認") }
+                                        },
+                                        dismissButton = {
+                                            TextButton(onClick = viewModel::cancelEditItem) { Text("取消", color = IosGray2) }
+                                        },
+                                        containerColor = IosWhite,
+                                        shape = RoundedCornerShape(16.dp)
+                                    )
                                 } else {
                                     Row {
                                         IconButton(

@@ -18,7 +18,8 @@ data class EditableItem(
     var unitPrice: Double,
     val originalQty: Int,
     val originalUnitPrice: Double,
-    var isDeleted: Boolean = false
+    var isDeleted: Boolean = false,
+    var description: String = ""
 ) {
     val lineTotal get() = qty * unitPrice
     val isModified get() = qty != originalQty || unitPrice != originalUnitPrice || isDeleted
@@ -57,6 +58,7 @@ data class QuoteDetailUiState(
     val editItemIdx: Int = -1,
     val editItemQty: String = "",
     val editItemPrice: String = "",
+    val editItemDesc: String = "",
 
     // Submit
     val saving: Boolean = false,
@@ -174,11 +176,17 @@ class QuoteDetailViewModel : ViewModel() {
     // ── Edit item ──
     fun startEditItem(idx: Int) {
         val it = _state.value.editItems.getOrNull(idx) ?: return
-        _state.value = _state.value.copy(editItemIdx = idx, editItemQty = it.qty.toString(), editItemPrice = it.unitPrice.toString())
+        _state.value = _state.value.copy(
+            editItemIdx = idx,
+            editItemQty = it.qty.toString(),
+            editItemPrice = it.unitPrice.toString(),
+            editItemDesc = it.description
+        )
     }
-    fun cancelEditItem() { _state.value = _state.value.copy(editItemIdx = -1) }
+    fun cancelEditItem() { _state.value = _state.value.copy(editItemIdx = -1, editItemDesc = "") }
     fun setEditItemQty(v: String) { _state.value = _state.value.copy(editItemQty = v) }
     fun setEditItemPrice(v: String) { _state.value = _state.value.copy(editItemPrice = v) }
+    fun setEditItemDesc(v: String) { _state.value = _state.value.copy(editItemDesc = v) }
     fun saveEditItem() {
         val st = _state.value
         val idx = st.editItemIdx
@@ -187,9 +195,10 @@ class QuoteDetailViewModel : ViewModel() {
         val it = items[idx]
         items[idx] = it.copy(
             qty = st.editItemQty.toIntOrNull()?.coerceAtLeast(1) ?: it.qty,
-            unitPrice = st.editItemPrice.toDoubleOrNull()?.coerceAtLeast(0.0) ?: it.unitPrice
+            unitPrice = st.editItemPrice.toDoubleOrNull()?.coerceAtLeast(0.0) ?: it.unitPrice,
+            description = st.editItemDesc
         )
-        _state.value = st.copy(editItems = items, editItemIdx = -1)
+        _state.value = st.copy(editItems = items, editItemIdx = -1, editItemDesc = "")
     }
 
     fun adjItemQty(idx: Int, d: Int) {
@@ -229,14 +238,15 @@ class QuoteDetailViewModel : ViewModel() {
     fun addProduct(p: Product) {
         val st = _state.value
         val newItem = EditableItem(
-            id = 0, // new item
+            id = 0,
             productId = p.id,
             skuCode = p.skuCode,
             productName = p.nameZh.ifBlank { p.skuCode },
             qty = 1,
             unitPrice = p.retailPriceHkd,
             originalQty = 0,
-            originalUnitPrice = 0.0
+            originalUnitPrice = 0.0,
+            description = ""
         )
         _state.value = st.copy(editItems = st.editItems + newItem, pickingProduct = false, feedback = "已加入 ${p.skuCode}")
     }
@@ -260,7 +270,8 @@ class QuoteDetailViewModel : ViewModel() {
             qty = 1,
             unitPrice = price,
             originalQty = 0,
-            originalUnitPrice = 0.0
+            originalUnitPrice = 0.0,
+            description = ""
         )
         _state.value = _state.value.copy(
             editItems = _state.value.editItems + newItem,
@@ -285,7 +296,8 @@ class QuoteDetailViewModel : ViewModel() {
                             productId = it.productId,
                             productName = if (it.productId == 0) it.productName else null,
                             qty = it.qty,
-                            unitPrice = it.unitPrice
+                            unitPrice = it.unitPrice,
+                            description = it.description.ifBlank { null }
                         )
                     }
 
@@ -297,7 +309,7 @@ class QuoteDetailViewModel : ViewModel() {
                 )
 
                 val resp = ApiClient.service.updateQuotation(detail.id, req)
-                if (resp.isSuccessful && (resp.body()?.ok ?: true)) {
+                if (resp.isSuccessful && resp.body()?.ok == true) {
                     _state.value = st.copy(saving = false, editing = false, done = true, feedback = "儲存成功")
                     // Reload detail
                     val reloadResp = ApiClient.service.getQuotationDetail(detail.id)

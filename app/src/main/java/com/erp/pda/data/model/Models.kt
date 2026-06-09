@@ -366,7 +366,8 @@ data class QuoteItemRequest(
     @SerializedName("product_id") val productId: Int = 0,
     @SerializedName("product_name") val productName: String? = null,
     val qty: Int = 1,
-    @SerializedName("unit_price") val unitPrice: Double = 0.0
+    @SerializedName("unit_price") val unitPrice: Double = 0.0,
+    val description: String? = null
 )
 
 data class QuotationResponse(
