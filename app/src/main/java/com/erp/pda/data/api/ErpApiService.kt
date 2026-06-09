@@ -191,4 +191,10 @@ interface ErpApiService {
     // ─── Purchase Orders ───
     @POST("purchase-orders")
     suspend fun createPurchaseOrder(@Body request: CreatePoRequest): Response<ApiResponse<Any>>
+
+    // ─── Sales Orders ───
+    @GET("sales-orders")
+    suspend fun getSalesOrders(
+        @Query("status") status: String? = null
+    ): Response<ApiResponse<List<SalesOrderSummary>>>
 }

@@ -441,3 +441,21 @@ data class UpdateInvoiceRequest(
     @SerializedName("discount_amount") val discountAmount: Double? = null,
     @SerializedName("delivery_charge") val deliveryCharge: Double? = null
 )
+
+// ─── Sales Orders ───
+
+data class SalesOrderSummary(
+    val id: Int = 0,
+    @SerializedName("so_number") val soNumber: String = "",
+    @SerializedName("customer_id") val customerId: Int = 0,
+    @SerializedName("customer_name") val customerName: String = "",
+    @SerializedName("warehouse_id") val warehouseId: Int = 0,
+    @SerializedName("project_id") val projectId: Int? = null,
+    val status: String = "",
+    @SerializedName("total_amount_hkd") val totalAmountHkdRaw: String = "0",
+    @SerializedName("confirmed_at") val confirmedAt: String? = null,
+    val notes: String? = null,
+    @SerializedName("created_at") val createdAt: String = ""
+) {
+    val totalAmountHkd: Double get() = totalAmountHkdRaw.toDoubleOrNull() ?: 0.0
+}

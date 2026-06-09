@@ -29,6 +29,7 @@ import com.erp.pda.ui.login.LoginScreen
 import com.erp.pda.ui.lookup.LookupScreen
 import com.erp.pda.ui.polist.PoListScreen
 import com.erp.pda.ui.quotedetail.QuoteDetailScreen
+import com.erp.pda.ui.solist.SoListScreen
 import com.erp.pda.ui.quotelist.QuoteListScreen
 import com.erp.pda.ui.receiving.ReceivingScreen
 import com.erp.pda.ui.recordpayment.RecordPaymentScreen
@@ -128,7 +129,7 @@ fun NavGraph(
             InvoiceListScreen(onNavigate = { navController.navigate(it) }, onBack = { navController.popBackStack() })
         }
         composable(Routes.SALES_ORDERS) {
-            InvoiceListScreen(salesOnly = true, onNavigate = { navController.navigate(it) }, onBack = { navController.popBackStack() })
+            SoListScreen(onBack = { navController.popBackStack() }, onNavigateToDetail = { id -> /* TODO: SO detail screen */ })
         }
         composable(Routes.PO_LIST) {
             PoListScreen(onNavigate = { navController.navigate(it) }, onBack = { navController.popBackStack() })
