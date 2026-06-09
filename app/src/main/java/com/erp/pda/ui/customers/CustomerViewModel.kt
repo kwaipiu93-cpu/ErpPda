@@ -16,6 +16,7 @@ data class CustomerUiState(
     val searchResults: List<CustomerSummary> = emptyList(),
     val selectedCustomer: CustomerDetail? = null,
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
     val error: String? = null,
     val isViewingDetail: Boolean = false
 ) {
@@ -32,6 +33,12 @@ class CustomerViewModel : ViewModel() {
         loadAllCustomers()
     }
 
+    /** 下拉刷新 */
+    fun refresh() {
+        _state.value = _state.value.copy(isRefreshing = true)
+        loadAllCustomers()
+    }
+
     /** 載入全部客戶 */
     fun loadAllCustomers() {
         viewModelScope.launch {
@@ -44,11 +51,13 @@ class CustomerViewModel : ViewModel() {
                 }
                 _state.value = _state.value.copy(
                     isLoading = false,
+                    isRefreshing = false,
                     allCustomers = resp.body()?.data ?: emptyList()
                 )
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
                     isLoading = false,
+                    isRefreshing = false,
                     error = "載入失敗: ${e.localizedMessage}"
                 )
             }

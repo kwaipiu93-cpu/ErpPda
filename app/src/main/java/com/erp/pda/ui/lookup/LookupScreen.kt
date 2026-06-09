@@ -19,6 +19,7 @@ import com.erp.pda.ui.components.IosTopBar
 @Composable
 fun LookupScreen(
     scannerManager: ScannerManager,
+    onBack: () -> Unit = {},
     viewModel: LookupViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -34,7 +35,7 @@ fun LookupScreen(
         topBar = {
             IosTopBar(
                 title = "S/N 查詢",
-                onBack = { }
+                onBack = onBack
             )
         }
     ) { padding ->

@@ -11,6 +11,8 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +31,7 @@ import com.erp.pda.ui.components.IosTopBar
 @Composable
 fun CustomerScreen(
     scannerManager: ScannerManager,
+    onBack: () -> Unit = {},
     viewModel: CustomerViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -44,7 +47,7 @@ fun CustomerScreen(
         topBar = {
             IosTopBar(
                 title = "客戶管理",
-                onBack = if (state.isViewingDetail) viewModel::backToList else null
+                onBack = if (state.isViewingDetail) viewModel::backToList else onBack
             )
         }
     ) { padding ->
@@ -63,6 +66,7 @@ fun CustomerScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CustomerListStep(state: CustomerUiState, viewModel: CustomerViewModel) {
     // Search input
@@ -106,11 +110,18 @@ private fun CustomerListStep(state: CustomerUiState, viewModel: CustomerViewMode
         )
         Spacer(Modifier.height(8.dp))
 
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+        val pullState = rememberPullToRefreshState()
+        PullToRefreshBox(
+            isRefreshing = state.isRefreshing,
+            onRefresh = { viewModel.refresh() },
+            state = pullState
         ) {
-            items(state.displayedCustomers, key = { it.id }) { customer ->
-                CustomerCard(customer = customer, onClick = { viewModel.viewDetail(customer.id) })
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                items(state.displayedCustomers, key = { it.id }) { customer ->
+                    CustomerCard(customer = customer, onClick = { viewModel.viewDetail(customer.id) })
+                }
             }
         }
     } else if (!state.isLoading) {

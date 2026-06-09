@@ -114,24 +114,25 @@ fun NavGraph(
         composable(Routes.DISPATCH) { DispatchScreen(scannerManager = scannerManager) }
         composable(Routes.CHECKOUT) { CheckoutScreen(scannerManager = scannerManager) }
         composable(Routes.INVOICE_LOOKUP) { InvoiceLookupScreen(scannerManager = scannerManager) }
-        composable(Routes.CUSTOMERS) { CustomerScreen(scannerManager = scannerManager) }
+        composable(Routes.CUSTOMERS) { CustomerScreen(scannerManager = scannerManager, onBack = { navController.popBackStack() }) }
         composable(Routes.CREATE_QUOTE) { CreateQuoteScreen(scannerManager = scannerManager) }
         composable(Routes.RECORD_PAYMENT) { RecordPaymentScreen(scannerManager = scannerManager) }
         composable(Routes.CREATE_PO) { CreatePoScreen(scannerManager = scannerManager) }
-        composable(Routes.LOOKUP) { LookupScreen(scannerManager = scannerManager) }
-        composable(Routes.STOCKTAKE) { StocktakeScreen(scannerManager = scannerManager) }
-        composable(Routes.STOCK_CHECK) { StockCheckScreen(scannerManager = scannerManager) }
+        composable(Routes.LOOKUP) { LookupScreen(scannerManager = scannerManager, onBack = { navController.popBackStack() }) }
+        composable(Routes.STOCKTAKE) { StocktakeScreen(scannerManager = scannerManager, onBack = { navController.popBackStack() }) }
+        composable(Routes.STOCK_CHECK) { StockCheckScreen(scannerManager = scannerManager, onBack = { navController.popBackStack() }) }
         composable(Routes.RETURN) { ReturnScreen(scannerManager = scannerManager) }
         composable(Routes.TRANSFER) { TransferScreen(scannerManager = scannerManager) }
         composable(Routes.INVOICE_LIST) {
-            InvoiceListScreen(onNavigate = { navController.navigate(it) })
+            InvoiceListScreen(onNavigate = { navController.navigate(it) }, onBack = { navController.popBackStack() })
         }
         composable(Routes.PO_LIST) {
-            PoListScreen(onNavigate = { navController.navigate(it) })
+            PoListScreen(onNavigate = { navController.navigate(it) }, onBack = { navController.popBackStack() })
         }
         composable(Routes.QUOTE_LIST) {
             QuoteListScreen(
                 scannerManager = scannerManager,
+                onBack = { navController.popBackStack() },
                 onNavigateToDetail = { id -> navController.navigate("quote_detail/$id") }
             )
         }

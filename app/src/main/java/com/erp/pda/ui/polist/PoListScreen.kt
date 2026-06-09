@@ -8,13 +8,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.erp.pda.data.model.PurchaseOrder
@@ -26,29 +25,16 @@ import com.erp.pda.ui.theme.*
 @Composable
 fun PoListScreen(
     onNavigate: (String) -> Unit,
+    onBack: () -> Unit = {},
     viewModel: PoListViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    val pullToRefreshState = rememberPullToRefreshState()
-
-    // Handle pull-to-refresh triggered
-    if (pullToRefreshState.isRefreshing) {
-        LaunchedEffect(true) {
-            viewModel.refresh()
-        }
-    }
-
-    // End refresh when data loaded
-    LaunchedEffect(state.isRefreshing) {
-        if (!state.isRefreshing) {
-            pullToRefreshState.endRefresh()
-        }
-    }
 
     Scaffold(
         topBar = {
             IosTopBar(
                 title = "採購單列表",
+                onBack = onBack,
                 actions = {
                     IconButton(onClick = { viewModel.refresh() }) {
                         Icon(Icons.Filled.Refresh, "刷新", tint = IosBlue)
@@ -66,44 +52,44 @@ fun PoListScreen(
             }
         }
     ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .nestedScroll(pullToRefreshState.nestedScrollConnection)
-        ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                // ─── Filter Tabs ───
-                PoFilterTabs(
-                    activeFilter = state.activeFilter,
-                    onFilterSelected = { viewModel.setFilter(it) }
-                )
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            // ─── Filter Tabs ───
+            PoFilterTabs(
+                activeFilter = state.activeFilter,
+                onFilterSelected = { viewModel.setFilter(it) }
+            )
 
-                // ─── Error banner ───
-                state.error?.let { err ->
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.errorContainer
-                    ) {
-                        Text(
-                            text = err,
-                            modifier = Modifier.padding(12.dp),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onErrorContainer
-                        )
-                    }
+            // ─── Error banner ───
+            state.error?.let { err ->
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.errorContainer
+                ) {
+                    Text(
+                        text = err,
+                        modifier = Modifier.padding(12.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onErrorContainer
+                    )
                 }
+            }
 
-                // ─── Content ───
-                if (state.isLoading && state.purchaseOrders.isEmpty()) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = IosBlue)
-                    }
-                } else if (state.purchaseOrders.isEmpty()) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("暫無採購單", style = MaterialTheme.typography.bodyLarge, color = IosSecondaryLabel)
-                    }
-                } else {
+            // ─── Content ───
+            if (state.isLoading && state.purchaseOrders.isEmpty()) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = IosBlue)
+                }
+            } else if (state.purchaseOrders.isEmpty()) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("暫無採購單", style = MaterialTheme.typography.bodyLarge, color = IosSecondaryLabel)
+                }
+            } else {
+                val pullState = rememberPullToRefreshState()
+                PullToRefreshBox(
+                    isRefreshing = state.isRefreshing,
+                    onRefresh = { viewModel.refresh() },
+                    state = pullState
+                ) {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
@@ -118,14 +104,6 @@ fun PoListScreen(
                     }
                 }
             }
-
-            // Pull-to-refresh indicator
-            PullToRefreshContainer(
-                state = pullToRefreshState,
-                modifier = Modifier.align(Alignment.TopCenter),
-                containerColor = IosWhite,
-                contentColor = IosBlue
-            )
         }
     }
 }

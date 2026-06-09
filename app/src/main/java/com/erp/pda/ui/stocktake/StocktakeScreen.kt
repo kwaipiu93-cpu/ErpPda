@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun StocktakeScreen(
     scannerManager: ScannerManager,
+    onBack: () -> Unit = {},
     viewModel: StocktakeViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -39,7 +40,7 @@ fun StocktakeScreen(
         topBar = {
             IosTopBar(
                 title = "庫存盤點",
-                onBack = { }
+                onBack = onBack
             )
         }
     ) { padding ->

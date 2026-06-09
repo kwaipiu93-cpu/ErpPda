@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun StockCheckScreen(
     scannerManager: ScannerManager,
+    onBack: () -> Unit = {},
     viewModel: StockCheckViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -39,7 +40,7 @@ fun StockCheckScreen(
         topBar = {
             IosTopBar(
                 title = "快速查庫存",
-                onBack = viewModel::clearProduct
+                onBack = { if (state.selectedProduct != null) viewModel.clearProduct() else onBack() }
             )
         }
     ) { padding ->
